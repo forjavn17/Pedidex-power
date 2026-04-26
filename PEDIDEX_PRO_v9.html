@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PEDIDEX PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --s1:#141414; --s2:#1c1c1c; --s3:#252525;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --oro:#FFD166; --oro2:#ffbc36;
+  --wa:#25D366; --rojo:#FF4C4C; --rojo-d:#cc3a3a;
+  --gris1:#888; --gris2:#555; --gris3:#333;
+  --blanco:#fff;
+  --r:14px; --rsm:9px; --rxs:6px;
+  --sh-oro:0 4px 24px rgba(255,209,102,.22);
+  --sh-wa:0 4px 20px rgba(37,211,102,.28);
+  --sh-rojo:0 4px 20px rgba(255,76,76,.28);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--blanco);min-height:100vh;overflow-x:hidden;}
+img{display:block;max-width:100%;}
+button,input,select,textarea{font-family:inherit;}
+.hidden{display:none!important;}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease;}
+#loader.out{opacity:0;pointer-events:none;}
+.ld-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:var(--oro);letter-spacing:3px;text-shadow:0 0 40px rgba(255,209,102,.3);}
+.ld-logo span{color:rgba(255,255,255,.25);}
+.spinner{width:32px;height:32px;border:3px solid rgba(255,209,102,.12);border-top-color:var(--oro);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── SPLASH ── */
+#splash{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;position:relative;animation:fadeUp .5s ease both;}
+#splash::before{content:'';position:fixed;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(255,209,102,.06) 0%,transparent 70%);pointer-events:none;}
+.splash-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;color:var(--oro);letter-spacing:4px;text-shadow:0 0 50px rgba(255,209,102,.3);margin-bottom:6px;text-align:center;}
+.splash-sub{font-size:14px;color:var(--gris1);letter-spacing:.5px;margin-bottom:48px;text-align:center;}
+.splash-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:420px;}
+.role-card{background:var(--s1);border:1.5px solid var(--border2);border-radius:20px;padding:28px 18px;cursor:pointer;transition:all .22s ease;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.role-card:hover{transform:translateY(-4px);box-shadow:var(--sh-oro);border-color:var(--oro);}
+.role-card .icon{font-size:42px;line-height:1;}
+.role-card .titulo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+.role-card .desc{font-size:12px;color:var(--gris1);line-height:1.4;}
+.splash-admin-link{margin-top:32px;font-size:12px;color:var(--gris2);cursor:pointer;transition:color .15s;}
+.splash-admin-link:hover{color:var(--gris1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+/* ── VIEWS ── */
+.view{display:none;flex-direction:column;min-height:100vh;}
+.view.active{display:flex;}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+.topbar-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:var(--oro);letter-spacing:2px;cursor:pointer;}
+.topbar-right{display:flex;align-items:center;gap:7px;}
+.topbar-user{font-size:12px;color:var(--gris1);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--oro),var(--oro2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#1a1200;flex-shrink:0;}
+
+/* ── BOTONES ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:var(--rsm);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .18s;white-space:nowrap;line-height:1;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn-oro{background:linear-gradient(135deg,var(--oro),var(--oro2));color:#1a1200;font-weight:700;box-shadow:var(--sh-oro);}
+.btn-oro:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px);}
+.btn-wa{background:var(--wa);color:#fff;box-shadow:var(--sh-wa);}
+.btn-wa:hover:not(:disabled){background:#1eb855;transform:translateY(-1px);}
+.btn-rojo{background:var(--rojo);color:#fff;}
+.btn-rojo:hover:not(:disabled){background:var(--rojo-d);}
+.btn-ghost{background:transparent;color:var(--gris1);border:1.5px solid var(--border2);}
+.btn-ghost:hover:not(:disabled){border-color:var(--gris1);color:var(--blanco);background:var(--s2);}
+.btn-sm{padding:7px 12px;font-size:13px;}
+.btn-xs{padding:5px 9px;font-size:12px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ── INPUTS ── */
+.field{display:flex;flex-direction:column;gap:5px;}
+.label{font-size:12px;font-weight:500;color:var(--gris1);letter-spacing:.3px;}
+.inp{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--rsm);color:var(--blanco);font-size:14px;padding:11px 13px;outline:none;transition:border-color .15s,box-shadow .15s;width:100%;appearance:none;}
+.inp:focus{border-color:rgba(255,209,102,.5);box-shadow:0 0 0 3px rgba(255,209,102,.07);}
+.inp::placeholder{color:var(--gris2);}
+textarea.inp{resize:vertical;min-height:72px;}
+select.inp option{background:var(--s2);}
+.inp-hint{font-size:11px;color:var(--gris2);margin-top:3px;}
+
+/* ── PAGE CONTENT ── */
+.page-content{max-width:540px;width:100%;margin:0 auto;padding:16px 14px 100px;display:flex;flex-direction:column;gap:14px;}
+.section-label{font-size:11px;font-weight:500;color:var(--gris1);text-transform:uppercase;letter-spacing:1px;padding:0 2px;}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:500;border:1.5px solid var(--border2);background:transparent;color:var(--gris1);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.pill.active,.pill:hover{border-color:var(--oro);background:rgba(255,209,102,.1);color:var(--oro);}
+.cats-wrap{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:100px;font-size:11px;font-weight:600;}
+.badge-oro{background:rgba(255,209,102,.15);color:var(--oro);}
+.badge-wa{background:rgba(37,211,102,.15);color:var(--wa);}
+.badge-rojo{background:rgba(255,76,76,.15);color:var(--rojo);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--s2);border-radius:var(--rsm);padding:4px;}
+.tab-btn{flex:1;padding:8px;border:none;background:transparent;border-radius:var(--rxs);font-size:13px;font-weight:500;color:var(--gris1);cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--s1);color:var(--blanco);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+
+/* ── EMPRENDEDOR CARD (marketplace) ── */
+.emp-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .2s;}
+.emp-card:hover{border-color:rgba(255,209,102,.3);transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.4);}
+.emp-card-header{background:linear-gradient(135deg,var(--s2),var(--s3));padding:16px 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.emp-avatar-lg{width:50px;height:50px;border-radius:13px;background:linear-gradient(135deg,var(--oro),var(--oro2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:#1a1200;flex-shrink:0;}
+.emp-nombre{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:2px;}
+.emp-desc-short{font-size:12px;color:var(--gris1);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+.emp-card-body{padding:12px 16px;}
+
+/* ── INLINE MENU (dentro de la emp-card) ── */
+.inline-menu{display:none;flex-direction:column;gap:0;border-top:1px solid var(--border);}
+.inline-menu.open{display:flex;}
+.inline-menu-header{padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;}
+.inline-menu-title{font-size:12px;font-weight:600;color:var(--gris1);text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── PRODUCTO INLINE ── */
+.prod-inline{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  transition:background .15s;
+}
+.prod-inline:hover{background:rgba(255,255,255,.02);}
+.prod-photo-wrap{position:relative;flex-shrink:0;}
+.prod-photo{width:58px;height:58px;border-radius:10px;object-fit:cover;background:var(--s2);border:1px solid var(--border);}
+.prod-photo-placeholder{width:58px;height:58px;border-radius:10px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.prod-inline-info{flex:1;min-width:0;}
+.prod-inline-nombre{font-weight:600;font-size:14px;margin-bottom:2px;}
+.prod-inline-desc{font-size:12px;color:var(--gris1);margin-bottom:6px;line-height:1.4;}
+.prod-inline-precio{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--oro);}
+.prod-add-btn{background:linear-gradient(135deg,var(--oro),var(--oro2));border:none;border-radius:var(--rxs);width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#1a1200;cursor:pointer;flex-shrink:0;margin-top:4px;transition:all .15s;}
+.prod-add-btn:hover{filter:brightness(1.1);transform:scale(1.08);}
+.photos-strip{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.photo-thumb{width:42px;height:42px;border-radius:7px;object-fit:cover;border:1px solid var(--border);cursor:pointer;}
+
+/* ── VARIANTES (opciones del producto) ── */
+.variantes-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.var-pill{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:500;border:1.5px solid var(--border2);background:transparent;color:var(--gris1);cursor:pointer;transition:all .12s;}
+.var-pill.sel{border-color:var(--oro);background:rgba(255,209,102,.12);color:var(--oro);}
+
+/* ── QTY INLINE ── */
+.qty-inline{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.qty-btn-sm{width:28px;height:28px;background:var(--s2);border:1.5px solid var(--border2);border-radius:7px;color:var(--oro);font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;flex-shrink:0;}
+.qty-btn-sm:hover{background:var(--s3);}
+.qty-num-sm{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--oro);min-width:20px;text-align:center;}
+
+/* ── CARRITO ITEM ── */
+.item-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--rsm);padding:11px 13px;display:flex;align-items:center;gap:9px;animation:slideIn .2s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:none;}}
+.item-em{font-size:20px;width:34px;height:34px;background:var(--s2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.item-ph{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+.item-info{flex:1;min-width:0;}
+.item-nombre{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-meta{font-size:11px;color:var(--gris1);margin-top:2px;}
+.item-precio{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--oro);flex-shrink:0;}
+.item-del{background:none;border:none;color:var(--gris2);cursor:pointer;font-size:14px;padding:4px;border-radius:5px;flex-shrink:0;transition:color .12s,background .12s;}
+.item-del:hover{color:var(--rojo);background:rgba(255,76,76,.1);}
+
+/* ── BARRA TOTAL ── */
+#total-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(12,12,12,.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;z-index:200;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);gap:10px;}
+#total-bar.visible{transform:translateY(0);}
+.total-label{font-size:12px;color:var(--gris1);}
+.total-monto{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;color:var(--oro);}
+.total-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── MODALES ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(6px);}
+.modal-ov.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;padding:22px;animation:popIn .24s cubic-bezier(.34,1.56,.64,1);position:relative;}
+.modal-lg{max-width:520px;}
+@keyframes popIn{from{transform:scale(.88);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:var(--oro);margin-bottom:16px;text-align:center;}
+.modal-close{position:absolute;top:13px;right:13px;background:var(--s2);border:none;border-radius:50%;width:28px;height:28px;color:var(--gris1);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;}
+.modal-close:hover{background:var(--s3);color:var(--blanco);}
+
+/* ── FOTO UPLOAD ── */
+.fotos-upload-wrap{display:flex;gap:8px;flex-wrap:wrap;}
+.foto-slot{width:80px;height:80px;border-radius:10px;border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden;background:var(--s2);}
+.foto-slot:hover{border-color:var(--oro);}
+.foto-slot img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+.foto-slot .add-ico{font-size:22px;color:var(--gris2);}
+.foto-del{position:absolute;top:3px;right:3px;background:rgba(255,76,76,.85);border:none;border-radius:50%;width:18px;height:18px;color:white;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+.foto-slot:hover .foto-del{display:flex;}
+
+/* ── VARIANTES EDITOR ── */
+.var-editor{background:var(--s2);border-radius:var(--rsm);padding:12px;display:flex;flex-direction:column;gap:8px;}
+.var-row{display:flex;gap:6px;align-items:center;}
+.var-del-btn{background:none;border:none;color:var(--gris2);cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;}
+.var-del-btn:hover{color:var(--rojo);}
+
+/* ── PHOTO VIEWER ── */
+#photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:800;display:none;align-items:center;justify-content:center;}
+#photo-viewer.open{display:flex;}
+#photo-viewer img{max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain;}
+#photo-viewer-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;border-radius:50%;width:36px;height:36px;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── MEJORAS v2 ── */
+
+/* Badge popular / recomendado */
+.badge-popular{background:linear-gradient(135deg,#ff6b35,#f7c59f);color:#1a0a00;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.3px;}
+.badge-cerrado{background:rgba(255,76,76,.15);color:var(--rojo);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.badge-abierto{background:rgba(37,211,102,.15);color:var(--wa);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+
+/* Producto inline — estado cerrado: overlay */
+.prod-inline.cerrado{opacity:.45;pointer-events:none;}
+.emp-card.emp-cerrada .emp-card-header{opacity:.7;}
+.emp-card.emp-cerrada{border-color:rgba(255,76,76,.2);}
+
+/* Botón + mejorado con animación de pulso al agregar */
+.prod-add-btn{background:linear-gradient(135deg,var(--oro),var(--oro2));border:none;border-radius:var(--rxs);width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#1a1200;cursor:pointer;flex-shrink:0;margin-top:4px;transition:all .15s;position:relative;overflow:hidden;}
+.prod-add-btn:hover{filter:brightness(1.12);transform:scale(1.1);box-shadow:0 2px 12px rgba(255,209,102,.4);}
+.prod-add-btn:active{transform:scale(.93);}
+@keyframes addPulse{0%{transform:scale(1)}40%{transform:scale(1.22)}70%{transform:scale(.96)}100%{transform:scale(1)}}
+.prod-add-btn.pulse{animation:addPulse .35s ease;}
+
+/* Toast mejorado — apila múltiples */
+#toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--s1);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 16px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:900;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;max-width:90vw;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.oro{border-color:rgba(255,209,102,.4);}
+#toast.wa{border-color:rgba(37,211,102,.4);background:#0d2e1a;}
+#toast.rojo{border-color:rgba(255,76,76,.4);background:#1e0a0a;}
+
+/* Bienvenido de nuevo */
+#bienvenido-banner{background:linear-gradient(135deg,rgba(255,209,102,.1),rgba(255,209,102,.05));border:1px solid rgba(255,209,102,.2);border-radius:var(--rsm);padding:10px 14px;font-size:13px;color:var(--oro);display:none;align-items:center;gap:8px;margin-bottom:2px;}
+#bienvenido-banner.show{display:flex;animation:fadeUp .4s ease both;}
+
+/* Horario / estado en perfil emprendedor */
+.horario-wrap{display:flex;gap:8px;align-items:center;}
+.toggle-estado{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle-estado input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{display:block;width:44px;height:24px;background:var(--gris2);border-radius:100px;cursor:pointer;transition:background .2s;}
+.toggle-estado input:checked + .toggle-track{background:var(--wa);}
+.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;}
+.toggle-estado input:checked + .toggle-track::after{transform:translateX(20px);}
+
+/* Card emprendedor — hover mejorado */
+.emp-card{transition:border-color .2s,transform .2s,box-shadow .2s;}
+.emp-card:hover{border-color:rgba(255,209,102,.25);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.35);}
+
+/* Microinteracción: badge carrito bounce */
+@keyframes badgeBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+#cli-carrito-badge.bounce{animation:badgeBounce .3s ease;}
+
+/* Role cards — active state */
+.role-card:active{transform:scale(.97);}
+
+/* Inline menu — animación apertura */
+.inline-menu{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);display:block!important;}
+.inline-menu.open{max-height:3000px;}
+
+/* Prod add btn ripple */
+@keyframes ripple{to{transform:scale(3);opacity:0;}}
+.ripple-el{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);width:16px;height:16px;margin-top:-8px;margin-left:-8px;animation:ripple .5s ease-out forwards;pointer-events:none;}
+
+/* Campo de nombre con autofill suave */
+#cli-nombre{transition:border-color .2s,box-shadow .2s,background .3s;}
+#cli-nombre.autofilled{border-color:rgba(255,209,102,.4);box-shadow:0 0 0 2px rgba(255,209,102,.08);}
+
+/* ── RESUMEN ── */
+.res-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.res-item:last-of-type{border:none;}
+.res-total{display:flex;justify-content:space-between;padding:12px 0 0;border-top:2px solid rgba(255,209,102,.25);margin-top:6px;}
+.res-total .lbl{font-weight:700;}
+.res-total .monto{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--oro);}
+
+/* ── ADMIN ── */
+.adm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.adm-stat{background:var(--s2);border-radius:var(--rsm);padding:13px 10px;text-align:center;}
+.adm-stat .v{font-family:'Syne',sans-serif;font-weight:800;font-size:21px;display:block;margin-bottom:4px;}
+.adm-stat .l{font-size:11px;color:var(--gris1);}
+.adm-stat.oro .v{color:var(--oro);}
+.adm-stat.wa .v{color:var(--wa);}
+.adm-stat.rojo .v{color:var(--rojo);}
+.hist-row{background:var(--s2);border-radius:var(--rsm);padding:10px 13px;display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:7px;border:1px solid var(--border);}
+.hist-monto{font-family:'Syne',sans-serif;font-weight:700;color:var(--oro);}
+
+/* ── PROD CARD (panel emprendedor) ── */
+.prod-card-emp{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;display:flex;align-items:flex-start;gap:10px;transition:border-color .15s;}
+.prod-card-emp:hover{border-color:rgba(255,209,102,.2);}
+.prod-thumb{width:52px;height:52px;border-radius:9px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+.prod-thumb-ph{width:52px;height:52px;border-radius:9px;background:var(--s3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:32px 16px;color:var(--gris1);font-size:13px;}
+.empty-ico{font-size:40px;margin-bottom:10px;opacity:.35;}
+
+.divider{height:1px;background:var(--border);margin:4px 0;}
+.spacer-bottom{height:90px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:10px;}
+@media(max-width:480px){.adm-stats{grid-template-columns:1fr 1fr;}.topbar-user{display:none;}}
+
+/* ── NUEVAS MEJORAS v3 ──────────────────────────────────────── */
+
+/* Plan PRO/FREE badges */
+.badge-pro{background:linear-gradient(135deg,var(--oro),var(--oro2));color:#1a1200;font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase;}
+.badge-free{background:var(--s3);color:var(--gris1);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.badge-rec{background:rgba(79,142,247,.18);color:#7eb8ff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+
+/* Rating social proof en cards */
+.emp-rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--gris1);margin-top:3px;}
+.emp-rating .stars{color:var(--amarillo,#fbbf24);letter-spacing:-1px;}
+.emp-rating .num{font-weight:600;color:var(--blanco);}
+.emp-rating .cnt{font-size:11px;}
+
+/* Botón flotante carrito */
+#fab-carrito{
+  position:fixed;bottom:80px;right:16px;z-index:300;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--oro),var(--oro2));
+  border:none;cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 20px rgba(255,209,102,.35);
+  transition:transform .2s,box-shadow .2s;
+  animation:fabIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+#fab-carrito.show{display:flex;}
+#fab-carrito:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(255,209,102,.5);}
+#fab-carrito:active{transform:scale(.95);}
+@keyframes fabIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.fab-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--rojo);color:white;
+  font-size:10px;font-weight:800;
+  width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);
+}
+
+/* Modal upgrade PRO */
+#m-upgrade .modal{text-align:center;}
+.upgrade-hero{font-size:52px;margin-bottom:10px;}
+.upgrade-titulo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--oro);margin-bottom:6px;}
+.upgrade-sub{font-size:14px;color:var(--gris1);margin-bottom:20px;line-height:1.5;}
+.upgrade-features{list-style:none;text-align:left;display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+.upgrade-features li{display:flex;align-items:center;gap:8px;font-size:14px;}
+.upgrade-features li::before{content:'✅';font-size:14px;flex-shrink:0;}
+
+/* Plan info en panel emprendedor */
+.plan-banner{
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,rgba(255,209,102,.08),rgba(255,209,102,.03));
+  border:1px solid rgba(255,209,102,.2);
+  border-radius:var(--rsm);
+  padding:10px 14px;
+  gap:10px;
+}
+.plan-banner.pro{background:linear-gradient(135deg,rgba(255,209,102,.15),rgba(255,188,54,.08));border-color:rgba(255,209,102,.4);}
+.plan-info-nombre{font-size:13px;font-weight:600;color:var(--oro);}
+.plan-info-desc{font-size:11px;color:var(--gris1);margin-top:2px;}
+
+/* Repetir último pedido */
+.btn-repetir{
+  background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(255,209,102,.06));
+  border:1px solid rgba(255,209,102,.25);
+  color:var(--oro);
+  font-size:13px;font-weight:600;
+  padding:10px 16px;border-radius:var(--rsm);
+  cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:all .18s;width:100%;justify-content:center;
+}
+.btn-repetir:hover{background:rgba(255,209,102,.18);border-color:rgba(255,209,102,.4);}
+
+/* Campo referencia renombrado */
+.ref-label{font-size:12px;font-weight:500;color:var(--gris1);}
+
+/* Inline-menu smooth open (max-height fix) */
+.inline-menu{
+  display:block!important;
+  max-height:0;overflow:hidden;
+  transition:max-height .38s cubic-bezier(.4,0,.2,1);
+  border-top:0px solid var(--border);
+}
+.inline-menu.open{max-height:4000px;border-top-width:1px;}
+
+/* Ripple (si no está ya) */
+@keyframes ripple{to{transform:scale(3);opacity:0;}}
+.ripple-el{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);width:16px;height:16px;margin-top:-8px;margin-left:-8px;animation:ripple .5s ease-out forwards;pointer-events:none;}
+
+/* Badge animado en carrito */
+@keyframes badgeBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+#cli-carrito-badge.bounce{animation:badgeBounce .3s ease;}
+
+/* Upgrade lock en producto */
+.prod-lock{
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;font-size:12px;color:var(--gris1);
+  padding:8px 12px;background:var(--s3);
+  border-radius:var(--rxs);cursor:pointer;
+  transition:color .15s;flex-shrink:0;margin-top:4px;
+}
+.prod-lock:hover{color:var(--oro);}
+
+/* Mejorar hover en rol cards móvil */
+@media(hover:none){.role-card:hover{transform:none;box-shadow:none;}}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-logo">PEDIDEX <span>PRO</span></div>
+  <div class="spinner"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- PHOTO VIEWER -->
+<div id="photo-viewer" onclick="closePhotoViewer()">
+  <button id="photo-viewer-close" onclick="closePhotoViewer()">✕</button>
+  <img id="photo-viewer-img" src="" alt="">
+</div>
+
+<!-- BOTÓN FLOTANTE CARRITO -->
+<button id="fab-carrito" onclick="abrirCarrito()" aria-label="Ver carrito">
+  🛒
+  <span class="fab-badge" id="fab-badge" style="display:none;"></span>
+</button>
+
+<!-- MODAL UPGRADE PRO -->
+<div class="modal-ov" id="m-upgrade" onclick="closeOv(event,'m-upgrade')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('m-upgrade')">✕</button>
+    <div class="upgrade-hero">🚀</div>
+    <div class="upgrade-titulo">Pasate a PRO</div>
+    <div class="upgrade-sub">
+      Con el plan <strong>PEDIDEX PRO</strong> publicás hasta <strong>30 productos</strong>,
+      mostrás tu menú completo y recibís más pedidos.
+    </div>
+    <ul class="upgrade-features">
+      <li>Hasta 30 productos publicados</li>
+      <li>Badge PRO visible en tu local</li>
+      <li>Prioridad en el listado</li>
+      <li>Soporte prioritario</li>
+    </ul>
+    <button class="btn btn-oro btn-full btn-lg" onclick="contactarUpgrade()">
+      💬 Contactar para activar PRO
+    </button>
+    <p style="font-size:11px;color:var(--gris2);text-align:center;margin-top:10px;">
+      Contactá al administrador por WhatsApp para activar tu plan.
+    </p>
+  </div>
+</div>
+
+<!-- ════════════ SPLASH ════════════ -->
+<div id="splash">
+  <div style="margin-bottom:10px;font-size:48px;">🛒</div>
+  <div class="splash-logo">PEDIDEX</div>
+  <div class="splash-sub">Comidas rápidas a pedido · Río Grande TDF</div>
+  <div class="splash-cards">
+    <div class="role-card" onclick="irA('cliente-home')">
+      <div class="icon">🍔</div>
+      <div class="titulo">Soy Cliente</div>
+      <div class="desc">Explorá el menú y pedí directo</div>
+    </div>
+    <div class="role-card" onclick="abrirModalEmprendedor()">
+      <div class="icon">👨‍🍳</div>
+      <div class="titulo">Soy Emprendedor</div>
+      <div class="desc">Publicá tu menú y recibí pedidos</div>
+    </div>
+  </div>
+  <div class="splash-admin-link" onclick="abrirAdminLogin()">⚙️ Acceso administrador</div>
+</div>
+
+<!-- ════════════ VIEW CLIENTE ════════════ -->
+<div class="view" id="view-cliente-home">
+  <div class="topbar">
+    <div class="topbar-brand" onclick="volverSplash()">← PEDIDEX</div>
+    <div class="topbar-right">
+      <span id="cli-carrito-badge" class="badge badge-oro hidden"></span>
+      <button class="btn btn-sm btn-ghost" onclick="abrirCarrito()">🛒 Carrito</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <!-- Banner bienvenido de nuevo -->
+    <div id="bienvenido-banner">👋 <span id="bienvenido-txt"></span></div>
+
+    <!-- Botón repetir último pedido (visible si hay historial) -->
+    <button class="btn-repetir hidden" id="btn-repetir-pedido" onclick="repetirUltimoPedido()">
+      🔁 Repetir mi último pedido
+    </button>
+
+    <!-- Datos cliente -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;">
+      <div class="section-label" style="margin-bottom:10px;">👤 Tus datos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div class="field"><label class="label">Tu nombre</label><input type="text" class="inp" id="cli-nombre" placeholder="Juan García" maxlength="50"></div>
+        <div class="field"><label class="ref-label">Referencia del pedido</label><input type="text" class="inp" id="cli-mesa" placeholder="Ej: Delivery, Mesa 3…" maxlength="30"></div>
+      </div>
+    </div>
+
+    <!-- Búsqueda -->
+    <input type="text" class="inp" id="cli-busqueda" placeholder="🔍 Buscar emprendedor o producto…" oninput="filtrarEmprend(this.value)">
+
+    <!-- Categorías -->
+    <div class="cats-wrap" id="cli-cats">
+      <button class="pill active" onclick="filtrarCatCli(this,'todos')">⚡ Todos</button>
+      <button class="pill" onclick="filtrarCatCli(this,'Comida')">🍔 Comida</button>
+      <button class="pill" onclick="filtrarCatCli(this,'Bebida')">🥤 Bebida</button>
+      <button class="pill" onclick="filtrarCatCli(this,'Postre')">🍰 Postre</button>
+      <button class="pill" onclick="filtrarCatCli(this,'Pizza')">🍕 Pizza</button>
+      <button class="pill" onclick="filtrarCatCli(this,'Sándwich')">🥪 Sándwich</button>
+    </div>
+
+    <div class="section-label">Emprendedores activos</div>
+    <!-- *** CARDS INLINE — el menú se despliega DENTRO de la card *** -->
+    <div id="grid-emprend" style="display:flex;flex-direction:column;gap:14px;"></div>
+  </div>
+
+  <div id="total-bar">
+    <div>
+      <div class="total-label">TOTAL DEL PEDIDO</div>
+      <div class="total-monto" id="total-monto">$0</div>
+    </div>
+    <div class="total-actions">
+      <button class="btn btn-ghost btn-sm" onclick="abrirResumen()">📋 Ver</button>
+      <button class="btn btn-wa btn-sm" onclick="enviarWA()">💬 WA</button>
+      <button class="btn btn-rojo btn-sm" onclick="confirmarLimpiar()">🗑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ VIEW EMPRENDEDOR ════════════ -->
+<div class="view" id="view-emprendedor">
+  <div class="topbar">
+    <div class="topbar-brand" onclick="volverSplash()">← PEDIDEX</div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="emp-email-display"></span>
+      <div class="avatar" id="emp-avatar"></div>
+      <button class="btn btn-xs btn-ghost" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="empTab(this,'tab-productos')">🍔 Productos</button>
+      <button class="tab-btn" onclick="empTab(this,'tab-perfil')">⚙️ Perfil</button>
+      <button class="tab-btn" onclick="empTab(this,'tab-pedidos')">📦 Pedidos</button>
+    </div>
+
+    <!-- TAB PRODUCTOS -->
+    <div id="tab-productos">
+      <!-- Banner del plan actual -->
+      <div class="plan-banner" id="plan-banner-emp">
+        <div>
+          <div class="plan-info-nombre" id="plan-nombre-lbl">Plan FREE</div>
+          <div class="plan-info-desc" id="plan-desc-lbl">10 productos máximo</div>
+        </div>
+        <span class="badge-free" id="plan-badge-emp">FREE</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:4px;">
+        <span class="section-label" id="prod-count-lbl"></span>
+        <button class="btn btn-oro btn-sm" id="btn-add-prod-emp" onclick="abrirModalAgregarProd()">➕ Agregar producto</button>
+      </div>
+      <div id="emp-prod-lista" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;"></div>
+    </div>
+
+    <!-- TAB PERFIL -->
+    <div id="tab-perfil" class="hidden">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:11px;">
+        <div class="section-label" style="margin-bottom:2px;">Datos de tu negocio</div>
+        <div class="field"><label class="label">Nombre del emprendimiento *</label><input type="text" class="inp" id="p-negocio" placeholder="Las Brasas de Hernán" maxlength="60"></div>
+        <div class="field"><label class="label">Descripción</label><textarea class="inp" id="p-desc" placeholder="Especialidades, horarios, zona de entrega…" maxlength="200"></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+          <div class="field"><label class="label">Categoría</label>
+            <select class="inp" id="p-cat">
+              <option>Comida</option><option>Bebida</option><option>Postre</option><option>Pizza</option><option>Sándwich</option>
+            </select>
+          </div>
+          <div class="field"><label class="label">📲 WhatsApp *</label><input type="tel" class="inp" id="p-whatsapp" placeholder="2964524899" maxlength="20"><div class="inp-hint">Recibirás pedidos aquí</div></div>
+        </div>
+        <div class="field"><label class="label">Dirección / Zona de entrega</label><input type="text" class="inp" id="p-direccion" placeholder="Centro, Chacra 2, toda la ciudad…" maxlength="80"></div>
+        <!-- Estado y horario -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+          <div class="field">
+            <label class="label">Horario de atención</label>
+            <input type="text" class="inp" id="p-horario" placeholder="Ej: 18:00 - 00:00" maxlength="30">
+          </div>
+          <div class="field">
+            <label class="label">Estado del local</label>
+            <label class="horario-wrap">
+              <label class="toggle-estado">
+                <input type="checkbox" id="p-abierto" checked>
+                <span class="toggle-track"></span>
+              </label>
+              <span id="p-estado-lbl" style="font-size:13px;color:var(--wa);">Abierto ahora</span>
+            </label>
+          </div>
+        </div>
+        <button class="btn btn-oro btn-full" onclick="guardarPerfil()">💾 Guardar cambios</button>
+
+        <!-- ── QR del menú ── -->
+        <div style="background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;text-align:center;margin-top:4px;">
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;margin-bottom:4px;">📲 Tu QR de menú</div>
+          <div style="font-size:12px;color:var(--gris1);margin-bottom:14px;">Compartilo para que tus clientes abran tu menú directo</div>
+          <div id="qr-output" style="display:flex;justify-content:center;margin-bottom:12px;"></div>
+          <div id="qr-url-lbl" style="font-size:10px;color:var(--gris2);word-break:break-all;margin-bottom:12px;"></div>
+          <button class="btn btn-ghost btn-full btn-sm" onclick="copiarLinkQR()">📋 Copiar link del menú</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB PEDIDOS -->
+    <div id="tab-pedidos" class="hidden">
+      <div class="section-label" style="margin-bottom:8px;">Pedidos recibidos hoy</div>
+      <div id="emp-pedidos-lista"></div>
+    </div>
+    <div class="spacer-bottom"></div>
+  </div>
+</div>
+
+<!-- ════════════ VIEW ADMIN ════════════ -->
+<div class="view" id="view-admin">
+  <div class="topbar">
+    <div class="topbar-brand" onclick="volverSplash()">← PEDIDEX</div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--oro);">ADMIN</span>
+      <button class="btn btn-xs btn-ghost" onclick="sincronizarAdmin()" title="Actualizar datos">🔄</button>
+      <button class="btn btn-xs btn-ghost" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="adm-stats">
+      <div class="adm-stat oro"><span class="v" id="adm-emprend">0</span><span class="l">Emprendedores</span></div>
+      <div class="adm-stat wa"><span class="v" id="adm-prods">0</span><span class="l">Productos</span></div>
+      <div class="adm-stat rojo"><span class="v" id="adm-pedidos">0</span><span class="l">Pedidos</span></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="admTab(this,'adm-tab-emprend')">👨‍🍳 Emprendedores</button>
+      <button class="tab-btn" onclick="admTab(this,'adm-tab-hist')">📦 Historial</button>
+      <button class="tab-btn" onclick="admTab(this,'adm-tab-cfg')">⚙️ Config</button>
+    </div>
+    <div id="adm-tab-emprend"></div>
+    <div id="adm-tab-hist" class="hidden"></div>
+    <div id="adm-tab-cfg" class="hidden">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;">
+        <div class="field"><label class="label">Nombre de la app</label><input type="text" class="inp" id="cfg-nombre" maxlength="40"></div>
+        <div class="field"><label class="label">Slogan</label><input type="text" class="inp" id="cfg-slogan" maxlength="80"></div>
+        <div class="field"><label class="label">WhatsApp admin</label><input type="tel" class="inp" id="cfg-wa" maxlength="20"></div>
+        <button class="btn btn-oro btn-full" onclick="guardarConfig()">💾 Guardar config</button>
+        <div class="divider"></div>
+        <button class="btn btn-rojo btn-full" onclick="adminBorrarHistorial()">🗑 Borrar historial</button>
+        <button class="btn btn-ghost btn-full" onclick="exportarCSV()">📥 Exportar CSV</button>
+      </div>
+    </div>
+    <div class="spacer-bottom"></div>
+  </div>
+</div>
+
+<!-- ════════════ MODALES ════════════ -->
+
+<!-- AUTH EMPRENDEDOR -->
+<div class="modal-ov" id="m-auth" onclick="closeOv(event,'m-auth')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('m-auth')">✕</button>
+    <div class="modal-title">👨‍🍳 Área Emprendedores</div>
+    <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;">
+      <button class="tab-btn active" id="auth-tab-login" onclick="switchAuth('login')" style="flex:1;">Ingresar</button>
+      <button class="tab-btn" id="auth-tab-reg" onclick="switchAuth('reg')" style="flex:1;">Registrarse</button>
+    </div>
+    <div id="auth-login" style="display:flex;flex-direction:column;gap:11px;">
+      <div class="field"><label class="label">Email</label><input type="email" class="inp" id="l-email" placeholder="tu@email.com" autocomplete="email"></div>
+      <div class="field"><label class="label">Contraseña</label><input type="password" class="inp" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginEmp()" autocomplete="current-password"></div>
+      <div id="l-err" class="hidden" style="color:var(--rojo);font-size:13px;text-align:center;"></div>
+      <button class="btn btn-oro btn-full" onclick="loginEmp()">Ingresar →</button>
+      <div style="text-align:center;font-size:12px;color:var(--gris1);">¿Sin cuenta? <span style="color:var(--oro);cursor:pointer;" onclick="switchAuth('reg')">Registrate</span></div>
+    </div>
+    <div id="auth-reg" style="display:none;flex-direction:column;gap:11px;">
+      <div class="field"><label class="label">Email *</label><input type="email" class="inp" id="r-email" placeholder="tu@email.com" autocomplete="email"></div>
+      <div class="field"><label class="label">Contraseña * (mín. 6 caracteres)</label><input type="password" class="inp" id="r-pass" placeholder="••••••••" autocomplete="new-password"></div>
+      <div class="field"><label class="label">Confirmar contraseña *</label><input type="password" class="inp" id="r-pass2" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')registrarEmp()"></div>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-bottom:2px;">Datos del negocio</div>
+      <div class="field"><label class="label">Nombre del emprendimiento *</label><input type="text" class="inp" id="r-negocio" placeholder="Las Brasas de Hernán" maxlength="60"></div>
+      <div class="field"><label class="label">📲 Tu WhatsApp *</label><input type="tel" class="inp" id="r-wa" placeholder="2964524899" maxlength="20"><div class="inp-hint">Los pedidos llegan a este número</div></div>
+      <div class="field"><label class="label">Categoría</label><select class="inp" id="r-cat"><option>Comida</option><option>Bebida</option><option>Postre</option><option>Pizza</option><option>Sándwich</option></select></div>
+      <div id="r-err" class="hidden" style="color:var(--rojo);font-size:13px;text-align:center;"></div>
+      <button class="btn btn-oro btn-full" onclick="registrarEmp()">Crear cuenta →</button>
+      <div style="text-align:center;font-size:12px;color:var(--gris1);">¿Ya tenés cuenta? <span style="color:var(--oro);cursor:pointer;" onclick="switchAuth('login')">Ingresá</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="modal-ov" id="m-admin-login" onclick="closeOv(event,'m-admin-login')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('m-admin-login')">✕</button>
+    <div class="modal-title">🔐 Acceso Admin</div>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div class="field"><label class="label">Email</label><input type="email" class="inp" id="adm-email" autocomplete="email"></div>
+      <div class="field"><label class="label">Contraseña</label><input type="password" class="inp" id="adm-pass" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
+      <div id="adm-err" class="hidden" style="color:var(--rojo);font-size:13px;text-align:center;">❌ Credenciales incorrectas</div>
+      <button class="btn btn-oro btn-full" onclick="loginAdmin()">Ingresar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- AGREGAR/EDITAR PRODUCTO (emprendedor) -->
+<div class="modal-ov" id="m-add-prod" onclick="closeOv(event,'m-add-prod')">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('m-add-prod')">✕</button>
+    <div class="modal-title" id="modal-prod-titulo">➕ Agregar producto</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- Nombre + precio -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div class="field" style="grid-column:1/-1;"><label class="label">Nombre del producto *</label><input type="text" class="inp" id="np-nombre" placeholder="Ej: Hamburguesa doble" maxlength="60"></div>
+        <div class="field"><label class="label">Precio base ($) *</label><input type="number" class="inp" id="np-precio" placeholder="0" min="0" step="50"></div>
+        <div class="field"><label class="label">Categoría</label>
+          <select class="inp" id="np-cat">
+            <option>🍔 Comida</option><option>🥤 Bebida</option><option>🍰 Postre</option><option>🍕 Pizza</option><option>🥪 Sándwich</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Descripción detallada -->
+      <div class="field"><label class="label">Descripción detallada</label><textarea class="inp" id="np-desc" placeholder="Ingredientes, tamaño, sabores, condimentos incluidos…" maxlength="200" style="min-height:60px;"></textarea><div class="inp-hint">Esta descripción aparece en el menú y en el WhatsApp del pedido</div></div>
+
+      <!-- Variantes (opciones) -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <label class="label">Variantes / Opciones <span style="color:var(--gris2);font-weight:400;">(tamaño, sabor, etc.)</span></label>
+          <button class="btn btn-xs btn-ghost" onclick="agregarVariante()">+ Agregar</button>
+        </div>
+        <div id="variantes-editor" class="var-editor" style="display:none;"></div>
+        <div class="inp-hint">Ej: 500ml · Coca-Cola · Con hielo. Cada variante puede tener precio adicional.</div>
+      </div>
+
+      <!-- Emoji -->
+      <div class="field">
+        <label class="label">Emoji del producto</label>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;" id="emoji-pick">
+          <button class="pill active" onclick="selEmoji(this,'🍔')">🍔</button>
+          <button class="pill" onclick="selEmoji(this,'🍕')">🍕</button>
+          <button class="pill" onclick="selEmoji(this,'🥪')">🥪</button>
+          <button class="pill" onclick="selEmoji(this,'🌮')">🌮</button>
+          <button class="pill" onclick="selEmoji(this,'🍗')">🍗</button>
+          <button class="pill" onclick="selEmoji(this,'🥤')">🥤</button>
+          <button class="pill" onclick="selEmoji(this,'🍰')">🍰</button>
+          <button class="pill" onclick="selEmoji(this,'☕')">☕</button>
+          <button class="pill" onclick="selEmoji(this,'🍟')">🍟</button>
+          <button class="pill" onclick="selEmoji(this,'🍩')">🍩</button>
+          <button class="pill" onclick="selEmoji(this,'🧃')">🧃</button>
+          <button class="pill" onclick="selEmoji(this,'🫙')">🫙</button>
+        </div>
+      </div>
+
+      <!-- Fotos (hasta 3) -->
+      <div>
+        <label class="label" style="margin-bottom:8px;display:block;">Fotos del producto <span style="color:var(--gris2);font-weight:400;">(hasta 3)</span></label>
+        <div class="fotos-upload-wrap">
+          <div class="foto-slot" id="slot-0" onclick="triggerFotoInput(0)">
+            <span class="add-ico">📷</span>
+            <button class="foto-del" id="del-0" onclick="event.stopPropagation();borrarFoto(0)">✕</button>
+          </div>
+          <div class="foto-slot" id="slot-1" onclick="triggerFotoInput(1)">
+            <span class="add-ico">📷</span>
+            <button class="foto-del" id="del-1" onclick="event.stopPropagation();borrarFoto(1)">✕</button>
+          </div>
+          <div class="foto-slot" id="slot-2" onclick="triggerFotoInput(2)">
+            <span class="add-ico">📷</span>
+            <button class="foto-del" id="del-2" onclick="event.stopPropagation();borrarFoto(2)">✕</button>
+          </div>
+        </div>
+        <input type="file" id="foto-input" accept="image/*" style="display:none;" onchange="cargarFoto(event)">
+        <div class="inp-hint">📌 Las fotos se muestran mientras estés conectado. Se comprimen automáticamente.</div>
+      </div>
+
+      <button class="btn btn-oro btn-full" id="btn-guardar-prod" onclick="guardarProducto()">Publicar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QTY + VARIANTE + NOTA (al agregar al carrito) -->
+<div class="modal-ov" id="m-qty" onclick="closeOv(event,'m-qty')">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('m-qty')">✕</button>
+    <!-- Foto o emoji grande -->
+    <div id="qty-media" style="margin-bottom:10px;"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:3px;" id="qty-nombre"></div>
+    <div style="font-size:13px;color:var(--gris1);margin-bottom:10px;" id="qty-desc-modal"></div>
+    <div style="font-size:15px;color:var(--oro);font-weight:700;margin-bottom:14px;" id="qty-precio-display"></div>
+
+    <!-- Variantes -->
+    <div id="qty-variantes-wrap" class="hidden" style="margin-bottom:14px;text-align:left;">
+      <div class="label" style="margin-bottom:7px;">Elegí una opción *</div>
+      <div id="qty-variantes" class="variantes-wrap"></div>
+    </div>
+
+    <!-- Cantidad -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">
+      <button class="qty-btn-sm" onclick="cambiarQty(-1)">−</button>
+      <span class="qty-num-sm" id="qty-num">1</span>
+      <button class="qty-btn-sm" onclick="cambiarQty(1)">+</button>
+    </div>
+
+    <!-- Nota detallada -->
+    <div class="field" style="margin-bottom:12px;text-align:left;">
+      <label class="label">Aclaración / Nota detallada</label>
+      <textarea class="inp" id="qty-nota" placeholder="Ej: Sin cebolla, extra ketchup, bien cocida, sin hielo…" maxlength="150" style="min-height:60px;"></textarea>
+      <div class="inp-hint">Todo lo que escribas aquí aparece en el WhatsApp</div>
+    </div>
+
+    <button class="btn btn-oro btn-full" onclick="confirmarAgregarCarrito()">➕ Agregar al pedido</button>
+  </div>
+</div>
+
+<!-- CARRITO -->
+<div class="modal-ov" id="m-carrito" onclick="closeOv(event,'m-carrito')">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('m-carrito')">✕</button>
+    <div class="modal-title">🛒 Tu pedido</div>
+    <div id="carrito-lista"></div>
+    <div id="carrito-empty" class="empty hidden"><div class="empty-ico">🛒</div><p>Tu carrito está vacío.</p></div>
+    <div id="carrito-resumen" class="hidden">
+      <div class="res-total">
+        <span class="lbl">TOTAL</span>
+        <span class="monto" id="carrito-total">$0</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+        <button class="btn btn-wa btn-full" onclick="enviarWA()">📲 Enviar por WhatsApp</button>
+        <button class="btn btn-ghost btn-full" onclick="closeModal('m-carrito')">Seguir pidiendo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div class="modal-ov" id="m-resumen" onclick="closeOv(event,'m-resumen')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('m-resumen')">✕</button>
+    <div class="modal-title">📋 Resumen</div>
+    <div id="resumen-cli" style="font-size:13px;color:var(--gris1);text-align:center;margin-bottom:12px;"></div>
+    <div id="resumen-items"></div>
+    <div class="res-total">
+      <span class="lbl">TOTAL</span>
+      <span class="monto" id="resumen-total">$0</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+      <button class="btn btn-wa btn-full" onclick="enviarWA()">📲 Enviar por WhatsApp</button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="imprimirPedido()">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM LIMPIAR -->
+<div class="modal-ov" id="m-confirm" onclick="closeOv(event,'m-confirm')">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:44px;margin-bottom:10px;">🗑</div>
+    <div class="modal-title" style="font-size:17px;">¿Limpiar el pedido?</div>
+    <p style="color:var(--gris1);font-size:13px;margin-bottom:16px;">No se puede deshacer.</p>
+    <div style="display:flex;gap:9px;">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('m-confirm')">Cancelar</button>
+      <button class="btn btn-rojo btn-full" onclick="limpiarPedido()">Limpiar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ════════════════════════════════════════
+   CONFIGURACIÓN (centralizada)
+   Para futura conexión con backend: reemplazar
+   Storage.get/set por llamadas fetch() a API.
+════════════════════════════════════════ */
+// Credenciales mínimamente encapsuladas
+const _CFG = { ae: atob('VmlsbGFsYmFoZXJuYW4yNjhAZ21haWwuY29t'), ap: atob('SGVybmFuY2hvMTc=') };
+const ADMIN_EMAIL = _CFG.ae;
+const ADMIN_PASS  = _CFG.ap;
+
+// Claves de Storage centralizadas — cambiar aquí afecta todo
+const LS = {
+  EMP:        'pdx_emp3',
+  HIST:       'pdx_hist3',
+  CFG:        'pdx_cfg3',
+  CLIENT:     'pdx_cli',   // nombre del cliente recurrente
+  LAST_ORDER: 'pdx_last',  // último pedido para "Repetir"
+};
+
+// Sistema de planes — fácil de expandir con backend
+const PLANES = {
+  free: { nombre:'FREE',  maxProds:10,  badge:'badge-free', label:'Plan FREE',  desc:'Hasta 10 productos' },
+  pro:  { nombre:'PRO',   maxProds:30,  badge:'badge-pro',  label:'Plan PRO ⭐', desc:'Hasta 30 productos + badge destacado' },
+};
+
+// Rating simulado basado en historial (social proof)
+// En producción: reemplazar por datos reales de API
+function getRating(empIdx) {
+  const pedidos = historial.filter(h => h.empIdx === empIdx).length;
+  if (pedidos === 0) return null;
+  // Genera un rating determinista entre 4.3 y 5.0 basado en el empIdx
+  const base = 4.3 + ((empIdx * 7 + 13) % 8) / 10;
+  return { rating: base.toFixed(1), pedidos };
+}
+const LS_EMP  = LS.EMP;
+const LS_HIST = LS.HIST;
+const LS_CFG  = LS.CFG;
+const MAX_PRODS = PLANES.pro.maxProds; // límite absoluto (plan PRO)
+
+// Helper: obtener plan del emprendedor
+function getPlan(emp) {
+  return (emp && emp.plan === 'pro') ? PLANES.pro : PLANES.free;
+}
+// Helper: límite de productos según plan
+function getMaxProds(emp) {
+  return getPlan(emp).maxProds;
+}
+
+/* ════════════════════════════════════════
+   STORAGE — Arquitectura robusta de datos
+   
+   COMPORTAMIENTO:
+   • window.storage(shared=true): almacenamiento compartido entre todos
+     los dispositivos dentro del artefacto de Claude.
+   • "Internal server error" ocurre cuando la clave NO existe todavía.
+     SOLUCIÓN: inicializar las claves con set() antes del primer get().
+   • localStorage prefijado con "bk_": respaldo local inmediato en cada
+     escritura, para recuperación offline.
+════════════════════════════════════════ */
+
+/* ── Defaults para inicialización de claves ─────────────────────── */
+const STORAGE_DEFAULTS = {
+  [LS.EMP]:  '[]',
+  [LS.HIST]: '[]',
+  [LS.CFG]:  JSON.stringify({ nombre:'PEDIDEX PRO', slogan:'Comidas rápidas a pedido · Río Grande TDF', wa:'542964524899' }),
+};
+
+/* ── CloudStorage ──────────────────────────────────────────────────
+   NOTA v9: Usa exclusivamente localStorage del dominio.
+   Esto garantiza que los datos persisten en GitHub Pages y son
+   compartidos entre todos los que abren la app desde el mismo
+   origen (incluyendo QR). window.storage de Claude Artifacts
+   no está disponible en producción (GitHub Pages).
+──────────────────────────────────────────────────────────────────── */
+const CloudStorage = {
+  async get(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return fallback;
+      return JSON.parse(raw);
+    } catch {
+      return fallback;
+    }
+  },
+  async set(key, val) {
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch(e) {
+      // localStorage lleno — intentar liberar espacio eliminando fotos
+      console.warn('localStorage lleno, limpiando fotos…', e);
+    }
+  },
+};
+
+/* ── Storage local (datos privados de cada dispositivo) ─────────── */
+const Storage = {
+  get(key, fallback = '') {
+    try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+  },
+  set(key, val) {
+    try { localStorage.setItem(key, val); return true; } catch { return false; }
+  },
+  remove(key) { try { localStorage.removeItem(key); } catch {} },
+};
+
+/* ── Estado global ───────────────────────────────────────────────── */
+let emprendedores = [];
+let historial     = [];
+let config        = { nombre:'PEDIDEX PRO', slogan:'Comidas rápidas a pedido · Río Grande TDF', wa:'542964524899' };
+let _cloudLoaded  = false;
+
+/* ── cargarDesdeLaNube ───────────────────────────────────────────
+   Inicializa las claves antes del primer GET para evitar el error
+   "Internal server error" que ocurre al leer claves inexistentes.
+─────────────────────────────────────────────────────────────────*/
+async function cargarDesdeLaNube() {
+  try {
+    // Leer los tres datasets en paralelo.
+    // CloudStorage.get nunca lanza — devuelve el fallback si hay error.
+    const [emps, hist, cfg] = await Promise.all([
+      CloudStorage.get(LS.EMP,  []),
+      CloudStorage.get(LS.HIST, []),
+      CloudStorage.get(LS.CFG,  null),
+    ]);
+
+    emprendedores = Array.isArray(emps) ? emps : [];
+    historial     = Array.isArray(hist) ? hist : [];
+    if (cfg && typeof cfg === 'object' && cfg.wa) config = cfg;
+
+    // Sanear productos (las fotos no se persisten, son muy pesadas)
+    emprendedores.forEach(e => {
+      if (!Array.isArray(e.productos)) e.productos = [];
+      e.productos.forEach(p => { if (!Array.isArray(p.fotos)) p.fotos = []; });
+    });
+
+    _cloudLoaded = true;
+  } catch {
+    // No debería llegar aquí, pero por si acaso
+    _cloudLoaded = true;
+  }
+}
+let sesion     = null;
+let adminSesion = false;
+let carrito    = [];
+let qtyActual  = 1;
+let prodEnCola = null;
+let varSelIdx  = -1;   // índice de variante seleccionada en modal qty
+let emojiSel   = '🍔';
+let catCliActual = 'todos';
+let busqCliActual = '';
+let fotoSlotActual = 0;
+let fotosTemp = [null, null, null]; // base64 strings mientras se edita
+let variantesTemp = [];             // [{label, extraPrecio}]
+let prodEditIdx = -1;               // -1 = nuevo, >=0 = edición
+
+/* ════════════════════════════════════════
+   INIT & LOADER
+════════════════════════════════════════ */
+window.addEventListener('load', async () => {
+  // 1. Ocultar loader después de 1.2s MÁXIMO — no depende del storage
+  const ocultarLoader = () => {
+    const l = document.getElementById('loader');
+    if (l) { l.classList.add('out'); setTimeout(() => { if (l.parentNode) l.remove(); }, 500); }
+  };
+  const loaderTimer = setTimeout(ocultarLoader, 1200);
+
+  // 2. Cargar datos (con timeout propio de 4s por operación)
+  await cargarDesdeLaNube();
+  clearTimeout(loaderTimer);   // si terminó antes del timer, ocultar ya
+  ocultarLoader();
+
+  limpiarStorageViejo();
+  seedDemo(); // solo corre si emprendedores[] está vacío (primer arranque)
+  cargarFotosDeStorage();
+
+  // Autocompletar nombre del cliente desde sesión anterior (local)
+  const cliGuardado = Storage.get(LS.CLIENT, '');
+  if (cliGuardado) {
+    const inputCli = document.getElementById('cli-nombre');
+    if (inputCli) {
+      inputCli.value = cliGuardado;
+      inputCli.classList.add('autofilled');
+    }
+    const banner = document.getElementById('bienvenido-banner');
+    const txt    = document.getElementById('bienvenido-txt');
+    if (banner && txt) {
+      txt.textContent = `Bienvenido de nuevo, ${cliGuardado.split(' ')[0]} 👋`;
+      banner.classList.add('show');
+      setTimeout(() => banner.classList.remove('show'), 5000);
+    }
+    const lastOrder = Storage.get(LS.LAST_ORDER, '');
+    if (lastOrder) {
+      document.getElementById('btn-repetir-pedido')?.classList.remove('hidden');
+    }
+  }
+
+  // Guardar nombre del cliente al escribirlo (local, privado)
+  const inputCli = document.getElementById('cli-nombre');
+  if (inputCli) {
+    inputCli.addEventListener('blur', function() {
+      if (this.value.trim()) Storage.set(LS.CLIENT, this.value.trim());
+    });
+    inputCli.addEventListener('input', function() {
+      this.classList.toggle('autofilled', this.value.trim().length > 0);
+    });
+  }
+
+  // ── Detección de QR ───────────────────────────────────────────────
+  // Si la URL tiene ?emp=EMAIL abre directamente ese local como cliente
+  const qrParams = new URLSearchParams(location.search);
+  const qrEmail  = qrParams.get('emp');
+  if (qrEmail) {
+    const qrIdx = emprendedores.findIndex(e => e.email === qrEmail);
+    if (qrIdx !== -1) {
+      // Ir directo a la vista cliente con ese local ya desplegado
+      await irA('cliente-home');
+      // Pequeña espera para que el DOM renderice
+      setTimeout(() => {
+        const menuEl = document.getElementById('empmenu-' + qrIdx);
+        if (menuEl && !menuEl.classList.contains('open')) {
+          toggleMenu(qrIdx);
+          // Scroll suave al card
+          const card = document.getElementById('empcard-' + qrIdx);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 200);
+      return; // no mostrar splash
+    }
+  }
+
+  // Toggle label estado abierto/cerrado en perfil emprendedor
+  document.getElementById('p-abierto')?.addEventListener('change', function() {
+    const lbl = document.getElementById('p-estado-lbl');
+    if (lbl) {
+      lbl.textContent = this.checked ? 'Abierto ahora' : 'Cerrado';
+      lbl.style.color = this.checked ? 'var(--wa)' : 'var(--rojo)';
+    }
+  });
+});
+
+/* ════════════════════════════════════════
+   NAVEGACIÓN
+════════════════════════════════════════ */
+async function irA(viewId) {
+  document.getElementById('splash').style.display = 'none';
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + viewId).classList.add('active');
+  // Refrescar datos compartidos antes de renderizar vistas públicas
+  if (viewId === 'cliente-home' || viewId === 'admin') {
+    await cargarDesdeLaNube();
+  }
+  if (viewId === 'cliente-home') renderGridEmprend();
+  if (viewId === 'emprendedor')  renderEmpPanel();
+  if (viewId === 'admin')        renderAdmin();
+}
+function volverSplash() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('splash').style.display = 'flex';
+}
+
+/* ════════════════════════════════════════
+   AUTH EMPRENDEDOR
+════════════════════════════════════════ */
+function abrirModalEmprendedor() { clearAuthForms(); openModal('m-auth'); }
+
+function switchAuth(tab) {
+  const isL = tab === 'login';
+  document.getElementById('auth-tab-login').classList.toggle('active', isL);
+  document.getElementById('auth-tab-reg').classList.toggle('active', !isL);
+  document.getElementById('auth-login').style.display = isL ? 'flex' : 'none';
+  document.getElementById('auth-reg').style.display   = isL ? 'none'  : 'flex';
+}
+
+async function loginEmp() {
+  const email = val('l-email').toLowerCase(), pass = val('l-pass');
+  const errEl = document.getElementById('l-err');
+  if (!email || !pass) return showErr(errEl,'Completá email y contraseña.');
+  // Refrescar desde la nube para ver los usuarios más recientes
+  await cargarDesdeLaNube();
+  const idx = emprendedores.findIndex(e => e.email===email && e.pass===pass);
+  if (idx === -1) return showErr(errEl,'❌ Email o contraseña incorrectos.');
+  errEl.classList.add('hidden');
+  sesion = { email, idx };
+  cargarFotosDeStorage();
+  closeModal('m-auth'); clearAuthForms(); irA('emprendedor');
+  toast('¡Bienvenido de vuelta! 👋','oro');
+}
+
+async function registrarEmp() {
+  const email=val('r-email').toLowerCase(), pass=val('r-pass'), pass2=val('r-pass2');
+  const negocio=val('r-negocio'), wa=val('r-wa').replace(/\D/g,''), cat=val('r-cat');
+  const errEl=document.getElementById('r-err');
+  if (!email||!pass||!negocio||!wa) return showErr(errEl,'Completá todos los campos.');
+  if (!isEmail(email))  return showErr(errEl,'❌ Email inválido.');
+  if (pass.length<6)    return showErr(errEl,'❌ Contraseña mínimo 6 caracteres.');
+  if (pass!==pass2)     return showErr(errEl,'❌ Las contraseñas no coinciden.');
+  if (wa.length<7)      return showErr(errEl,'❌ WhatsApp inválido.');
+  if (emprendedores.some(e=>e.email===email)) return showErr(errEl,'❌ Email ya registrado.');
+  try {
+    emprendedores.push({ email,pass,negocio:sanitize(negocio),wa,cat,desc:'',direccion:'',productos:[],activo:true,creado:Date.now() });
+    await guardarEmp();
+    sesion = { email, idx: emprendedores.length-1 };
+    errEl.classList.add('hidden');
+    closeModal('m-auth'); clearAuthForms(); irA('emprendedor');
+    toast('¡Cuenta creada! Completá tu perfil. 🎉','oro');
+  } catch(e) {
+    emprendedores.pop(); // revertir si falla
+    showErr(errEl,'❌ Error al crear la cuenta. Intentá de nuevo.');
+  }
+}
+
+function logout() { sesion=null; adminSesion=false; carrito=[]; renderTotalBar(); volverSplash(); }
+
+/* ════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════ */
+function abrirAdminLogin() {
+  document.getElementById('adm-email').value='';
+  document.getElementById('adm-pass').value='';
+  document.getElementById('adm-err').classList.add('hidden');
+  openModal('m-admin-login');
+}
+function loginAdmin() {
+  const email=val('adm-email').toLowerCase(), pass=val('adm-pass');
+  if (email===ADMIN_EMAIL.toLowerCase()&&pass===ADMIN_PASS) {
+    adminSesion=true;
+    document.getElementById('adm-err').classList.add('hidden');
+    closeModal('m-admin-login'); irA('admin');
+    toast('Bienvenido, Admin ⚙️','oro');
+  } else {
+    document.getElementById('adm-err').classList.remove('hidden');
+    document.getElementById('adm-pass').value='';
+  }
+}
+async function sincronizarAdmin() {
+  toast('🔄 Actualizando datos…', 'oro');
+  await cargarDesdeLaNube();
+  renderAdmin();
+  toast('✅ Datos actualizados', 'wa');
+}
+
+function renderAdmin() {
+  document.getElementById('adm-emprend').textContent = emprendedores.length;
+  document.getElementById('adm-prods').textContent   = emprendedores.reduce((a,e)=>a+e.productos.length,0);
+  document.getElementById('adm-pedidos').textContent = historial.length;
+  renderAdmEmprend(); renderAdmHist();
+  document.getElementById('cfg-nombre').value = config.nombre;
+  document.getElementById('cfg-slogan').value = config.slogan;
+  document.getElementById('cfg-wa').value     = config.wa;
+}
+function admTab(el,tid) {
+  document.querySelectorAll('#view-admin .tab-btn').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['adm-tab-emprend','adm-tab-hist','adm-tab-cfg'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==tid));
+}
+function renderAdmEmprend() {
+  const w = document.getElementById('adm-tab-emprend');
+  w.innerHTML = emprendedores.length ? emprendedores.map((e, i) => {
+    const esAbierto = e.abierto !== false;
+    const esPro     = e.plan === 'pro';
+    return `
+    <div class="hist-row" style="flex-wrap:wrap;gap:8px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;">
+          ${esc(e.negocio)}
+          ${esPro ? `<span class="badge-pro" style="margin-left:5px;">PRO</span>` : `<span class="badge-free" style="margin-left:5px;">FREE</span>`}
+          <span style="color:var(--gris1);font-size:11px;margin-left:4px;">${esc(e.email)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--gris1);margin-top:2px;">
+          ${e.productos.length}/${esPro ? PLANES.pro.maxProds : PLANES.free.maxProds} productos
+          · 💬 ${e.wa}${e.horario ? ' · 🕐 ' + esc(e.horario) : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+        <span class="badge ${e.activo ? 'badge-wa' : 'badge-rojo'}">${e.activo ? 'Activo' : 'Pausado'}</span>
+        <span class="${esAbierto ? 'badge-abierto' : 'badge-cerrado'}">${esAbierto ? 'Abierto' : 'Cerrado'}</span>
+        <button class="btn btn-xs btn-oro" onclick="togglePlanEmp(${i})">${esPro ? '→ FREE' : '→ PRO'}</button>
+        <button class="btn btn-xs btn-ghost" onclick="toggleEmp(${i})">${e.activo ? 'Pausar' : 'Activar'}</button>
+        <button class="btn btn-xs btn-rojo" onclick="eliminarEmp(${i})">🗑</button>
+      </div>
+    </div>`;
+  }).join('')
+  : `<div class="empty"><div class="empty-ico">👨‍🍳</div><p>Sin emprendedores.</p></div>`;
+}
+function renderAdmHist() {
+  const w=document.getElementById('adm-tab-hist');
+  if (!historial.length) { w.innerHTML=`<div class="empty"><div class="empty-ico">📦</div><p>Sin historial.</p></div>`; return; }
+  const tf=historial.reduce((a,h)=>a+h.total,0);
+  w.innerHTML=`<div style="background:var(--s2);border-radius:var(--rsm);padding:11px 14px;margin-bottom:10px;display:flex;justify-content:space-between;">
+    <span style="color:var(--gris1);font-size:13px;">Total facturado</span>
+    <span style="font-family:'Syne',sans-serif;font-weight:800;color:var(--oro);font-size:17px;">$${fmt(tf)}</span>
+  </div>`
+  +historial.slice(0,30).map(h=>`
+    <div class="hist-row">
+      <div><div style="font-weight:600;font-size:13px;">${esc(h.cliente)} ${h.mesa?'· '+esc(h.mesa):''}</div>
+      <div style="font-size:11px;color:var(--gris1);">🕐 ${h.hora} · ${h.items} ítems · ${h.empIdx!==undefined?(emprendedores[h.empIdx]?.negocio||'—'):'—'}</div></div>
+      <div class="hist-monto">$${fmt(h.total)}</div>
+    </div>`).join('');
+}
+async function toggleEmp(i) { emprendedores[i].activo=!emprendedores[i].activo; await guardarEmp(); renderAdmin(); toast(`Emprendedor ${emprendedores[i].activo?'activado':'pausado'}`,'oro'); }
+async function eliminarEmp(i) { if (!confirm(`¿Eliminar a ${emprendedores[i].negocio}?`)) return; emprendedores.splice(i,1); await guardarEmp(); renderAdmin(); toast('Eliminado','rojo'); }
+async function guardarConfig() {
+  config.nombre = sanitize(val('cfg-nombre')) || 'PEDIDEX PRO';
+  config.slogan = sanitize(val('cfg-slogan'));
+  config.wa     = val('cfg-wa').replace(/\D/g,'');
+  await CloudStorage.set(LS.CFG, config);
+  toast('✅ Config guardada','oro');
+}
+async function adminBorrarHistorial() { if(!confirm('¿Borrar historial?'))return; historial=[]; await guardarHist(); renderAdmin(); toast('Historial borrado','rojo'); }
+function exportarCSV() {
+  if (!historial.length) return toast('Sin datos','rojo');
+  let csv='Hora,Cliente,Mesa,Ítems,Total,Emprendedor\n';
+  historial.forEach(h=>{ const e=h.empIdx!==undefined?(emprendedores[h.empIdx]?.negocio||''):''; csv+=`${h.hora},"${h.cliente}","${h.mesa||''}",${h.items},$${fmt(h.total)},"${e}"\n`; });
+  const b=new Blob([csv],{type:'text/csv'}), u=URL.createObjectURL(b), a=document.createElement('a');
+  a.href=u; a.download=`pedidex_${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(u);
+  toast('📥 CSV descargado','oro');
+}
+
+/* ════════════════════════════════════════
+   PANEL EMPRENDEDOR
+════════════════════════════════════════ */
+function empTab(el,tabId) {
+  document.querySelectorAll('#view-emprendedor .tab-btn').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-productos','tab-perfil','tab-pedidos'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==tabId));
+  if (tabId === 'tab-perfil') setTimeout(generarQR, 100);
+}
+function renderEmpPanel() {
+  if (!sesion) return;
+  const emp=emprendedores[sesion.idx];
+  document.getElementById('emp-email-display').textContent=emp.email;
+  document.getElementById('emp-avatar').textContent=initials(emp.negocio||emp.email);
+  document.getElementById('p-negocio').value  = emp.negocio   || '';
+  document.getElementById('p-desc').value     = emp.desc      || '';
+  document.getElementById('p-whatsapp').value = emp.wa        || '';
+  document.getElementById('p-direccion').value= emp.direccion || '';
+  // Cargar horario y estado
+  const horarioEl = document.getElementById('p-horario');
+  const abiertoEl = document.getElementById('p-abierto');
+  const estadoLbl = document.getElementById('p-estado-lbl');
+  if (horarioEl) horarioEl.value = emp.horario || '';
+  if (abiertoEl) {
+    const esAbierto = emp.abierto !== false; // default abierto
+    abiertoEl.checked = esAbierto;
+    if (estadoLbl) {
+      estadoLbl.textContent = esAbierto ? 'Abierto ahora' : 'Cerrado';
+      estadoLbl.style.color = esAbierto ? 'var(--wa)' : 'var(--rojo)';
+    }
+  }
+  if (emp.cat) document.getElementById('p-cat').value = emp.cat;
+  renderEmpProductos(); renderEmpPedidos();
+}
+/* ════════════════════════════════════════
+   QR DEL MENÚ
+════════════════════════════════════════ */
+function generarQR() {
+  if (!sesion) return;
+  const emp = emprendedores[sesion.idx];
+  // El link abre la app con ?emp=EMAIL para mostrar el local del emprendedor
+  const url = `${location.origin}${location.pathname}?emp=${encodeURIComponent(emp.email)}`;
+  const lbl = document.getElementById('qr-url-lbl');
+  if (lbl) lbl.textContent = url;
+  const cont = document.getElementById('qr-output');
+  if (!cont) return;
+  cont.innerHTML = '';
+  if (typeof QRCode !== 'undefined') {
+    new QRCode(cont, {
+      text: url,
+      width: 160,
+      height: 160,
+      colorDark: '#FFD166',
+      colorLight: '#141414',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } else {
+    cont.innerHTML = `<div style="font-size:12px;color:var(--gris1);padding:10px;">${url}</div>`;
+  }
+}
+function copiarLinkQR() {
+  if (!sesion) return;
+  const emp = emprendedores[sesion.idx];
+  const url = `${location.origin}${location.pathname}?emp=${encodeURIComponent(emp.email)}`;
+  navigator.clipboard.writeText(url)
+    .then(() => toast('📋 Link copiado al portapapeles', 'oro'))
+    .catch(() => prompt('Copiá este link:', url));
+}
+
+async function guardarPerfil() {
+  const negocio=val('p-negocio'), wa=val('p-whatsapp').replace(/\D/g,'');
+  if (!negocio) return toast('⚠️ El nombre del emprendimiento es obligatorio','rojo');
+  if (!wa||wa.length<7) return toast('⚠️ WhatsApp inválido — ingresá solo números','rojo');
+  const emp=emprendedores[sesion.idx];
+  emp.negocio   = sanitize(negocio);
+  emp.desc      = sanitize(val('p-desc'));
+  emp.wa        = wa;
+  emp.cat       = val('p-cat');
+  emp.direccion = sanitize(val('p-direccion'));
+  // Nuevos campos: horario y estado abierto/cerrado
+  emp.horario   = sanitize(val('p-horario'));
+  emp.abierto   = document.getElementById('p-abierto')?.checked ?? true;
+  try {
+    await guardarEmp();
+    document.getElementById('emp-avatar').textContent=initials(emp.negocio);
+    toast('✅ Perfil guardado correctamente','oro');
+  } catch(e) {
+    toast('⚠️ Error al guardar. Intentá de nuevo.','rojo');
+  }
+}
+
+/* ════════════════════════════════════════
+   PRODUCTOS (emprendedor panel)
+════════════════════════════════════════ */
+function renderEmpProductos() {
+  const emp     = emprendedores[sesion.idx];
+  const plan    = getPlan(emp);
+  const maxP    = plan.maxProds;
+  const wrap    = document.getElementById('emp-prod-lista');
+  const lbl     = document.getElementById('prod-count-lbl');
+  const btn     = document.getElementById('btn-add-prod-emp');
+  const atLimite = emp.productos.length >= maxP;
+
+  // Actualizar banner del plan
+  const planBanner  = document.getElementById('plan-banner-emp');
+  const planNomLbl  = document.getElementById('plan-nombre-lbl');
+  const planDescLbl = document.getElementById('plan-desc-lbl');
+  const planBadge   = document.getElementById('plan-badge-emp');
+  if (planBanner && planNomLbl) {
+    planBanner.className = `plan-banner${plan === PLANES.pro ? ' pro' : ''}`;
+    planNomLbl.textContent  = plan.label;
+    planDescLbl.textContent = plan.desc;
+    planBadge.className     = plan.badge;
+    planBadge.textContent   = plan.nombre;
+  }
+
+  lbl.textContent = `${emp.productos.length} / ${maxP} productos`;
+  // Si está en FREE y llegó al límite → mostrar botón upgrade
+  if (atLimite && plan === PLANES.free) {
+    btn.textContent = '🚀 Pasate a PRO';
+    btn.onclick     = () => openModal('m-upgrade');
+    btn.className   = 'btn btn-sm btn-outline';
+    btn.style.borderColor = 'var(--oro)';
+    btn.style.color = 'var(--oro)';
+  } else {
+    btn.textContent = '➕ Agregar producto';
+    btn.onclick     = abrirModalAgregarProd;
+    btn.className   = 'btn btn-oro btn-sm';
+    btn.style.cssText = '';
+  }
+  btn.disabled = atLimite && plan === PLANES.pro; // solo deshabilitar totalmente en PRO al límite
+
+  if (!emp.productos.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-ico">🍽</div><p>No publicaste productos todavía.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = emp.productos.map((p, i) => {
+    const fotoSrc = p.fotos && p.fotos[0];
+    const thumb   = fotoSrc
+      ? `<img class="prod-thumb" src="${fotoSrc}" alt="">`
+      : `<div class="prod-thumb-ph">${p.emoji}</div>`;
+    const vars = p.variantes && p.variantes.length
+      ? `<div style="font-size:11px;color:var(--gris1);margin-top:2px;">${p.variantes.map(v=>v.label+(v.extraPrecio?` +$${v.extraPrecio}`:'')).join(' · ')}</div>`
+      : '';
+    return `<div class="prod-card-emp">
+      ${thumb}
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;">${esc(p.nombre)}</div>
+        <div style="font-size:12px;color:var(--gris1);">${esc(p.desc||'')} ${p.cat?'· '+p.cat:''}</div>
+        ${vars}
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--oro);flex-shrink:0;">$${fmt(p.precio)}</div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+        <button class="btn btn-xs btn-ghost" onclick="editarProducto(${i})">✏️</button>
+        <button class="btn btn-xs btn-rojo" onclick="eliminarProducto(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderEmpPedidos() {
+  const wrap=document.getElementById('emp-pedidos-lista');
+  const misp=historial.filter(h=>h.empIdx===sesion.idx);
+  wrap.innerHTML=misp.length?misp.slice(0,20).map(h=>`
+    <div class="hist-row">
+      <div><div style="font-weight:600;font-size:13px;">${esc(h.cliente||'Sin nombre')} ${h.mesa?'· '+esc(h.mesa):''}</div>
+      <div style="font-size:11px;color:var(--gris1);">🕐 ${h.hora} · ${h.items} ítem${h.items!==1?'s':''}</div></div>
+      <div class="hist-monto">$${fmt(h.total)}</div>
+    </div>`).join(''):`<div class="empty"><div class="empty-ico">📦</div><p>No recibiste pedidos aún.</p></div>`;
+}
+
+/* ════════════════════════════════════════
+   MODAL AGREGAR / EDITAR PRODUCTO
+════════════════════════════════════════ */
+function abrirModalAgregarProd() {
+  prodEditIdx=-1; fotosTemp=[null,null,null]; variantesTemp=[];
+  document.getElementById('modal-prod-titulo').textContent='➕ Agregar producto';
+  document.getElementById('btn-guardar-prod').textContent='Publicar producto';
+  ['np-nombre','np-precio','np-desc'].forEach(id=>document.getElementById(id).value='');
+  emojiSel='🍔';
+  document.querySelectorAll('#emoji-pick .pill').forEach((p,i)=>p.classList.toggle('active',i===0));
+  resetFotoSlots();
+  renderVariantesEditor();
+  openModal('m-add-prod');
+}
+
+function editarProducto(i) {
+  prodEditIdx=i;
+  const p=emprendedores[sesion.idx].productos[i];
+  document.getElementById('modal-prod-titulo').textContent='✏️ Editar producto';
+  document.getElementById('btn-guardar-prod').textContent='Guardar cambios';
+  document.getElementById('np-nombre').value=p.nombre||'';
+  document.getElementById('np-precio').value=p.precio||'';
+  document.getElementById('np-desc').value=p.desc||'';
+  emojiSel=p.emoji||'🍔';
+  document.querySelectorAll('#emoji-pick .pill').forEach(el=>el.classList.toggle('active',el.textContent===emojiSel));
+  fotosTemp=[...(p.fotos||[null,null,null])].slice(0,3);
+  while(fotosTemp.length<3) fotosTemp.push(null);
+  variantesTemp=JSON.parse(JSON.stringify(p.variantes||[]));
+  resetFotoSlots();
+  renderVariantesEditor();
+  openModal('m-add-prod');
+}
+
+async function guardarProducto() {
+  const nombre=val('np-nombre'), precio=parseFloat(document.getElementById('np-precio').value), desc=val('np-desc');
+  const cat=val('np-cat').replace(/[^\w\s]/g,'').trim();
+  if (!nombre) return toast('⚠️ Ingresá el nombre','rojo');
+  if (!precio||precio<=0) return toast('⚠️ Precio inválido','rojo');
+  const emp    = emprendedores[sesion.idx];
+  const maxP   = getMaxProds(emp);
+  const plan   = getPlan(emp);
+  if (prodEditIdx === -1 && emp.productos.length >= maxP) {
+    if (plan === PLANES.free) {
+      openModal('m-upgrade');
+    } else {
+      toast(`⚠️ Máximo ${maxP} productos`, 'rojo');
+    }
+    return;
+  }
+  const prod={
+    id:prodEditIdx>=0?(emp.productos[prodEditIdx].id||Date.now()):Date.now(),
+    nombre:sanitize(nombre), precio, desc:sanitize(desc),
+    emoji:emojiSel, cat,
+    fotos:fotosTemp.filter(Boolean),
+    variantes:variantesTemp.filter(v=>v.label),
+  };
+  try {
+    if (prodEditIdx>=0) emp.productos[prodEditIdx]=prod;
+    else emp.productos.push(prod);
+    await guardarEmp();
+    closeModal('m-add-prod');
+    renderEmpProductos();
+    toast(`${emojiSel} ${prod.nombre} ${prodEditIdx>=0?'actualizado':'publicado'}`,'oro');
+    prodEditIdx=-1;
+  } catch(e) {
+    toast('⚠️ Error al guardar el producto. Intentá con fotos más pequeñas.','rojo');
+  }
+}
+
+async function eliminarProducto(i) {
+  if (!confirm('¿Eliminás este producto?')) return;
+  emprendedores[sesion.idx].productos.splice(i,1);
+  await guardarEmp(); renderEmpProductos(); toast('Producto eliminado','rojo');
+}
+
+/* ════════════════════════════════════════
+   FOTOS (hasta 3)
+════════════════════════════════════════ */
+function triggerFotoInput(slotIdx) { fotoSlotActual=slotIdx; document.getElementById('foto-input').click(); }
+
+function cargarFoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('⚠️ Foto muy grande (máx 5MB)', 'rojo'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Comprimir imagen antes de guardar
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600; // px máximo lado mayor
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else        { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      fotosTemp[fotoSlotActual] = compressed;
+      renderFotoSlot(fotoSlotActual, compressed);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function renderFotoSlot(i, src) {
+  const slot=document.getElementById('slot-'+i);
+  slot.innerHTML=src
+    ? `<img src="${src}" alt="Foto ${i+1}"><button class="foto-del" id="del-${i}" onclick="event.stopPropagation();borrarFoto(${i})">✕</button>`
+    : `<span class="add-ico">📷</span><button class="foto-del" id="del-${i}" onclick="event.stopPropagation();borrarFoto(${i})">✕</button>`;
+}
+
+function borrarFoto(i) { fotosTemp[i]=null; renderFotoSlot(i,null); }
+
+function resetFotoSlots() { for(let i=0;i<3;i++) renderFotoSlot(i,fotosTemp[i]); }
+
+/* ════════════════════════════════════════
+   VARIANTES EDITOR
+════════════════════════════════════════ */
+function agregarVariante() {
+  variantesTemp.push({ label:'', extraPrecio:0 });
+  renderVariantesEditor();
+}
+function eliminarVariante(i) { variantesTemp.splice(i,1); renderVariantesEditor(); }
+function actualizarVariante(i,campo,valor) { variantesTemp[i][campo]=campo==='extraPrecio'?parseFloat(valor)||0:valor; }
+
+function renderVariantesEditor() {
+  const ed=document.getElementById('variantes-editor');
+  if (!variantesTemp.length) { ed.style.display='none'; return; }
+  ed.style.display='flex';
+  ed.innerHTML=variantesTemp.map((v,i)=>`
+    <div class="var-row">
+      <input type="text" class="inp" style="flex:2;" placeholder="Ej: 500ml Coca-Cola" maxlength="50"
+        value="${esc(v.label)}" oninput="actualizarVariante(${i},'label',this.value)">
+      <input type="number" class="inp" style="width:80px;flex-shrink:0;" placeholder="+$0" min="0" step="50"
+        value="${v.extraPrecio||''}" oninput="actualizarVariante(${i},'extraPrecio',this.value)">
+      <button class="var-del-btn" onclick="eliminarVariante(${i})">✕</button>
+    </div>`).join('');
+}
+
+function selEmoji(el,em) { document.querySelectorAll('#emoji-pick .pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); emojiSel=em; }
+
+/* ════════════════════════════════════════
+   CLIENTE — MARKETPLACE (INLINE MENU)
+════════════════════════════════════════ */
+function filtrarCatCli(el,cat) { document.querySelectorAll('#cli-cats .pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); catCliActual=cat; renderGridEmprend(); }
+function filtrarEmprend(q) { busqCliActual=q.toLowerCase(); renderGridEmprend(); }
+
+function renderGridEmprend() {
+  const grid = document.getElementById('grid-emprend');
+  let lista  = emprendedores.filter(e => e.activo && e.productos.length > 0);
+  if (catCliActual !== 'todos') lista = lista.filter(e => e.cat === catCliActual || e.productos.some(p => (p.cat||'').includes(catCliActual)));
+  if (busqCliActual) lista = lista.filter(e =>
+    e.negocio.toLowerCase().includes(busqCliActual) ||
+    e.productos.some(p => p.nombre.toLowerCase().includes(busqCliActual) || (p.desc||'').toLowerCase().includes(busqCliActual))
+  );
+  if (!lista.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-ico">🍽</div><p>No hay emprendedores disponibles.<br>Probá otra categoría.</p></div>`;
+    return;
+  }
+
+  // PRO primero en el listado
+  lista.sort((a, b) => (b.plan === 'pro' ? 1 : 0) - (a.plan === 'pro' ? 1 : 0));
+
+  grid.innerHTML = lista.map(e => {
+    const idx        = emprendedores.indexOf(e);
+    const totalPed   = historial.filter(h => h.empIdx === idx).length;
+    const esAbierto  = e.abierto !== false;
+    const horarioStr = e.horario ? ` · 🕐 ${esc(e.horario)}` : '';
+    const esPro      = e.plan === 'pro';
+    const ratingData = getRating(idx);
+
+    // Badges de estado
+    const estadoBadge = esAbierto
+      ? `<span class="badge-abierto">🟢 Abierto${horarioStr}</span>`
+      : `<span class="badge-cerrado">🔴 Cerrado${horarioStr}</span>`;
+
+    // Rating social proof (solo si tiene pedidos)
+    const ratingHTML = ratingData
+      ? `<div class="emp-rating">
+          <span class="stars">★★★★★</span>
+          <span class="num">${ratingData.rating}</span>
+          <span class="cnt">· +${ratingData.pedidos} pedidos</span>
+         </div>`
+      : '';
+
+    return `
+    <div class="emp-card ${esAbierto?'':'emp-cerrada'}" id="empcard-${idx}">
+      <div class="emp-card-header" onclick="toggleMenu(${idx})" style="cursor:pointer;">
+        <div class="emp-avatar-lg">${initials(e.negocio)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="emp-nombre">
+            ${esc(e.negocio)}
+            ${esPro ? `<span class="badge-pro" style="margin-left:6px;vertical-align:middle;">PRO</span>` : ''}
+          </div>
+          <div class="emp-desc-short">${esc(e.desc||'Menú disponible')}</div>
+          ${ratingHTML}
+          <div style="margin-top:4px;">${estadoBadge}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <span class="badge badge-oro">${e.cat||'Comida'}</span>
+          <span style="font-size:11px;color:var(--gris1);">${e.productos.length} productos</span>
+        </div>
+        <span style="margin-left:8px;color:var(--gris1);font-size:18px;" id="emp-arrow-${idx}">▼</span>
+      </div>
+      <div class="inline-menu" id="empmenu-${idx}">
+        <div class="inline-menu-header">
+          <span class="inline-menu-title">📋 Menú · ${e.productos.length} productos</span>
+          ${e.direccion ? `<span style="font-size:11px;color:var(--gris1);">📍 ${esc(e.direccion)}</span>` : ''}
+        </div>
+        ${!esAbierto ? `<div style="padding:10px 16px;background:rgba(255,76,76,.06);font-size:13px;color:var(--rojo);text-align:center;">🔴 Cerrado ahora${e.horario?' · Horario: '+esc(e.horario):''}</div>` : ''}
+        ${e.productos.map((p, pi) => prodInlineHTML(idx, pi, p, esAbierto)).join('')}
+        <div style="padding:10px 16px;">
+          <button class="btn btn-wa btn-full btn-sm" onclick="contactarEmpWA(${idx})">💬 Contactar a ${esc(e.negocio)}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function prodInlineHTML(empIdx, prodIdx, p, esAbierto=true) {
+  const fotoSrc = p.fotos && p.fotos[0];
+  const media   = fotoSrc
+    ? `<img class="prod-photo" src="${fotoSrc}" alt="${esc(p.nombre)}" onclick="event.stopPropagation();abrirFoto('${fotoSrc}')">`
+    : `<div class="prod-photo-placeholder">${p.emoji}</div>`;
+  const extraFotos = p.fotos && p.fotos.length > 1
+    ? `<div class="photos-strip">${p.fotos.slice(1).map(f=>`<img class="photo-thumb" src="${f}" onclick="event.stopPropagation();abrirFoto('${f}')">`).join('')}</div>`
+    : '';
+  const varsPreview = p.variantes && p.variantes.length
+    ? `<div class="variantes-wrap" style="margin-top:5px;">${p.variantes.map(v=>`<span class="var-pill">${esc(v.label)}${v.extraPrecio?` <b>+$${fmt(v.extraPrecio)}</b>`:''}</span>`).join('')}</div>`
+    : '';
+
+  // Badges de conversión — estratégicos y variados
+  let convBadge = '';
+  if (prodIdx === 0)      convBadge = `<span class="badge-popular" style="display:inline-block;margin-bottom:4px;">🔥 Popular</span> `;
+  else if (prodIdx === 2) convBadge = `<span class="badge-rec" style="display:inline-block;margin-bottom:4px;">⭐ Recomendado</span> `;
+
+  // Botón agregar al carrito
+  const addBtn = esAbierto
+    ? `<button class="prod-add-btn" onclick="addBtnClick(event,${empIdx},${prodIdx})" title="Agregar al pedido">+</button>`
+    : `<button class="prod-add-btn" style="opacity:.3;cursor:not-allowed;" disabled title="Local cerrado">+</button>`;
+
+  return `
+  <div class="prod-inline${esAbierto ? '' : ' cerrado'}">
+    <div class="prod-photo-wrap">
+      ${media}
+      ${extraFotos}
+    </div>
+    <div class="prod-inline-info">
+      ${convBadge ? `<div>${convBadge}</div>` : ''}
+      <div class="prod-inline-nombre">${esc(p.nombre)}</div>
+      ${p.desc ? `<div class="prod-inline-desc">${esc(p.desc)}</div>` : ''}
+      ${varsPreview}
+      <div class="prod-inline-precio">$${fmt(p.precio)}</div>
+    </div>
+    ${addBtn}
+  </div>`;
+}
+
+/* Wrapper del botón + con efecto ripple y animación pulse */
+function addBtnClick(event, empIdx, prodIdx) {
+  const btn = event.currentTarget;
+  // Ripple effect
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-el';
+  const rect = btn.getBoundingClientRect();
+  ripple.style.left = (event.clientX - rect.left) + 'px';
+  ripple.style.top  = (event.clientY - rect.top)  + 'px';
+  btn.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+  // Pulse animation
+  btn.classList.remove('pulse');
+  void btn.offsetWidth; // reflow para reiniciar
+  btn.classList.add('pulse');
+  btn.addEventListener('animationend', () => btn.classList.remove('pulse'), { once:true });
+  // Abrir modal
+  abrirQtyModal(empIdx, prodIdx);
+}
+
+function toggleMenu(empIdx) {
+  const menu=document.getElementById('empmenu-'+empIdx);
+  const arrow=document.getElementById('emp-arrow-'+empIdx);
+  const isOpen=menu.classList.toggle('open');
+  arrow.textContent=isOpen?'▲':'▼';
+}
+
+function contactarEmpWA(empIdx) {
+  const e=emprendedores[empIdx];
+  const waNum=e.wa||config.wa;
+  window.open(`https://wa.me/549${waNum}?text=${encodeURIComponent('Hola '+e.negocio+', vi tu menú en PEDIDEX PRO 🛒')}`, '_blank');
+}
+
+/* ════════════════════════════════════════
+   MODAL QTY + VARIANTE + NOTA
+════════════════════════════════════════ */
+function abrirQtyModal(empIdx, prodIdx) {
+  const prod=emprendedores[empIdx].productos[prodIdx];
+  prodEnCola={ empIdx, prodIdx, prod:{ ...prod, fotos:[...(prod.fotos||[])], variantes:JSON.parse(JSON.stringify(prod.variantes||[])) } };
+  qtyActual=1; varSelIdx=-1;
+  document.getElementById('qty-nombre').textContent=prod.nombre;
+  document.getElementById('qty-desc-modal').textContent=prod.desc||'';
+  document.getElementById('qty-num').textContent=1;
+  document.getElementById('qty-nota').value='';
+  actualizarPrecioModal();
+  // Media
+  const med=document.getElementById('qty-media');
+  const f=prod.fotos&&prod.fotos[0];
+  med.innerHTML=f?`<img src="${f}" style="width:90px;height:90px;border-radius:12px;object-fit:cover;margin:0 auto;">`:`<div style="font-size:52px;">${prod.emoji}</div>`;
+  // Variantes
+  const vwrap=document.getElementById('qty-variantes-wrap');
+  const vlist=document.getElementById('qty-variantes');
+  if (prod.variantes&&prod.variantes.length) {
+    vwrap.classList.remove('hidden');
+    vlist.innerHTML=prod.variantes.map((v,vi)=>`
+      <span class="var-pill" onclick="selVariante(${vi},this)">${esc(v.label)}${v.extraPrecio?` <b style="color:var(--oro)">+$${fmt(v.extraPrecio)}</b>`:''}</span>`).join('');
+  } else {
+    vwrap.classList.add('hidden');
+    vlist.innerHTML='';
+  }
+  openModal('m-qty');
+}
+
+function selVariante(vi,el) {
+  varSelIdx=vi;
+  document.querySelectorAll('#qty-variantes .var-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  actualizarPrecioModal();
+}
+
+function actualizarPrecioModal() {
+  if (!prodEnCola) return;
+  const p=prodEnCola.prod;
+  let precio=p.precio;
+  if (varSelIdx>=0 && p.variantes&&p.variantes[varSelIdx]) precio+=p.variantes[varSelIdx].extraPrecio||0;
+  document.getElementById('qty-precio-display').textContent=`$${fmt(precio)} c/u · Total: $${fmt(precio*qtyActual)}`;
+}
+
+function cambiarQty(delta) { qtyActual=Math.max(1,Math.min(99,qtyActual+delta)); document.getElementById('qty-num').textContent=qtyActual; actualizarPrecioModal(); }
+
+function confirmarAgregarCarrito() {
+  if (!prodEnCola) return;
+  const p=prodEnCola.prod;
+  // Verificar que eligió variante si hay variantes
+  if (p.variantes&&p.variantes.length&&varSelIdx===-1) return toast('⚠️ Elegí una opción primero','rojo');
+  const varSel=varSelIdx>=0&&p.variantes?p.variantes[varSelIdx]:null;
+  const nota=val('qty-nota');
+  const precioUnit=p.precio+(varSel?.extraPrecio||0);
+  const prodLigero = {
+    id: p.id,
+    nombre: p.nombre,
+    precio: p.precio,
+    emoji: p.emoji,
+    desc: p.desc,
+    cat: p.cat,
+    variantes: p.variantes || [],
+    fotos: p.fotos ? p.fotos.slice(0, 1) : [], // solo primera foto en carrito
+  };
+  carrito.push({
+    empIdx: prodEnCola.empIdx,
+    prod: prodLigero,
+    qty: qtyActual,
+    varSel,
+    nota: sanitize(nota),
+    subtotal: precioUnit * qtyActual,
+    precioUnit,
+  });
+  closeModal('m-qty');
+  renderTotalBar();
+  actualizarBadgeCarrito();
+  // Bounce animation en el badge del carrito
+  const badge = document.getElementById('cli-carrito-badge');
+  if (badge) {
+    badge.classList.remove('bounce');
+    void badge.offsetWidth;
+    badge.classList.add('bounce');
+    badge.addEventListener('animationend', () => badge.classList.remove('bounce'), { once:true });
+  }
+  const varLabel=varSel?` · ${varSel.label}`:'';
+  toast(`${p.emoji} ${p.nombre}${varLabel} agregado al carrito`,'oro');
+  prodEnCola=null;
+}
+
+/* ════════════════════════════════════════
+   CARRITO
+════════════════════════════════════════ */
+function calcTotal() { return carrito.reduce((a,c)=>a+c.subtotal,0); }
+function renderTotalBar() {
+  document.getElementById('total-monto').textContent='$'+fmt(calcTotal());
+  const bar=document.getElementById('total-bar');
+  carrito.length>0?bar.classList.add('visible'):bar.classList.remove('visible');
+}
+function actualizarBadgeCarrito() {
+  const badge    = document.getElementById('cli-carrito-badge');
+  const fab      = document.getElementById('fab-carrito');
+  const fabBadge = document.getElementById('fab-badge');
+  const total    = carrito.reduce((a, c) => a + c.qty, 0);
+  if (total > 0) {
+    badge.textContent = total;
+    badge.classList.remove('hidden');
+    if (fab) { fab.classList.add('show'); fabBadge.textContent = total; fabBadge.style.display = 'flex'; }
+  } else {
+    badge.classList.add('hidden');
+    if (fab) { fab.classList.remove('show'); fabBadge.style.display = 'none'; }
+  }
+}
+function abrirCarrito() { renderCarrito(); openModal('m-carrito'); }
+function renderCarrito() {
+  const lista=document.getElementById('carrito-lista');
+  const empty=document.getElementById('carrito-empty');
+  const res=document.getElementById('carrito-resumen');
+  if (!carrito.length) { lista.innerHTML=''; empty.classList.remove('hidden'); res.classList.add('hidden'); return; }
+  empty.classList.add('hidden'); res.classList.remove('hidden');
+  document.getElementById('carrito-total').textContent='$'+fmt(calcTotal());
+  // Agrupar por emprendedor
+  const grupos={};
+  carrito.forEach((item,i)=>{ if(!grupos[item.empIdx]) grupos[item.empIdx]=[]; grupos[item.empIdx].push({...item,idx:i}); });
+  lista.innerHTML=Object.entries(grupos).map(([ei,items])=>{
+    const emp=emprendedores[ei];
+    return `<div style="margin-bottom:14px;">
+      <div class="section-label" style="margin-bottom:7px;">🍳 ${esc(emp?.negocio||'Emprendedor')}</div>
+      ${items.map(item=>{
+        const f=item.prod.fotos&&item.prod.fotos[0];
+        const media=f?`<img class="item-ph" src="${f}" alt="">`:`<div class="item-em">${item.prod.emoji}</div>`;
+        const varLabel=item.varSel?` · ${esc(item.varSel.label)}`:'';
+        const notaLabel=item.nota?` · <i style="color:var(--gris1)">${esc(item.nota)}</i>`:'';
+        return `<div class="item-card" style="margin-bottom:7px;">
+          ${media}
+          <div class="item-info">
+            <div class="item-nombre">${esc(item.prod.nombre)}${varLabel}</div>
+            <div class="item-meta">${item.qty>1?item.qty+'× $'+fmt(item.precioUnit):'$'+fmt(item.precioUnit)}${notaLabel}</div>
+          </div>
+          <div class="item-precio">$${fmt(item.subtotal)}</div>
+          <button class="item-del" onclick="eliminarDelCarrito(${item.idx})">✕</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+function eliminarDelCarrito(i) { carrito.splice(i,1); renderCarrito(); renderTotalBar(); actualizarBadgeCarrito(); }
+
+/* ════════════════════════════════════════
+   ENVIAR WHATSAPP — mensaje profesional y detallado
+════════════════════════════════════════ */
+function enviarWA() {
+  if (!carrito.length) return toast('⚠️ El carrito está vacío','rojo');
+  const cliente = val('cli-nombre');
+  const mesa    = val('cli-mesa');
+
+  // Persistir nombre del cliente si fue escrito
+  if (cliente) Storage.set(LS.CLIENT, cliente);
+
+  const fecha = new Date().toLocaleString('es-AR', { timeZone:'America/Argentina/Ushuaia',
+    weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+  const total = calcTotal();
+
+  // Agrupar ítems por emprendedor
+  const grupos = {};
+  carrito.forEach(item => {
+    if (!grupos[item.empIdx]) grupos[item.empIdx] = [];
+    grupos[item.empIdx].push(item);
+  });
+
+  let delay = 0;
+  Object.entries(grupos).forEach(([ei, items]) => {
+    const emp    = emprendedores[ei];
+    const waNum  = emp.wa || config.wa;
+    const subEmp = items.reduce((a,c) => a + c.subtotal, 0);
+
+    // ── Mensaje WhatsApp mejorado ──
+    let txt = `🛒 *NUEVO PEDIDO — PEDIDEX PRO*\n`;
+    txt += `━━━━━━━━━━━━━━━━━━━━\n`;
+    txt += `📅 *Fecha:* ${fecha}\n`;
+    if (cliente) txt += `👤 *Cliente:* ${cliente}\n`;
+    if (mesa)    txt += `🪑 *Mesa / Ref.:* ${mesa}\n`;
+    txt += `🏪 *Local:* ${emp.negocio}\n`;
+    txt += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+    txt += `*📝 DETALLE DEL PEDIDO:*\n\n`;
+    items.forEach((item, i) => {
+      txt += `${i+1}. ${item.prod.emoji} *${item.prod.nombre}*`;
+      if (item.qty > 1) txt += ` ×${item.qty}`;
+      txt += `\n`;
+      if (item.varSel) txt += `   ↳ Opción: _${item.varSel.label}_\n`;
+      if (item.nota)   txt += `   ↳ 📝 _${item.nota}_\n`;
+      txt += `   ↳ 💵 $${fmt(item.precioUnit)} c/u = *$${fmt(item.subtotal)}*\n\n`;
+    });
+    txt += `━━━━━━━━━━━━━━━━━━━━\n`;
+    if (Object.keys(grupos).length > 1) {
+      txt += `💰 *Subtotal ${emp.negocio}: $${fmt(subEmp)}*\n`;
+      txt += `💳 *TOTAL GENERAL: $${fmt(total)}*\n`;
+    } else {
+      txt += `💰 *TOTAL: $${fmt(subEmp)}*\n`;
+    }
+    txt += `━━━━━━━━━━━━━━━━━━━━\n`;
+    txt += `_Pedido enviado desde PEDIDEX PRO_ 🚀`;
+
+    setTimeout(() => window.open(`https://wa.me/549${waNum}?text=${encodeURIComponent(txt)}`, '_blank'), delay);
+    delay += 800;
+  });
+
+  // Guardar en historial
+  const entry = {
+    id:      Date.now(),
+    hora:    new Date().toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' }),
+    cliente: sanitize(cliente) || 'Sin nombre',
+    mesa:    sanitize(mesa),
+    items:   carrito.reduce((a,c) => a + c.qty, 0),
+    total,
+    empIdx:  carrito[0]?.empIdx,
+  };
+  historial.unshift(entry);
+  if (historial.length > 200) historial = historial.slice(0, 200);
+  guardarHist();
+
+  // Guardar snapshot del último pedido para "Repetir pedido"
+  Storage.set(LS.LAST_ORDER, JSON.stringify(
+    carrito.map(c => ({
+      empIdx: c.empIdx,
+      prodId: c.prod.id,
+      qty:    c.qty,
+      nota:   c.nota,
+      varSel: c.varSel,
+    }))
+  ));
+  // Mostrar botón repetir si no estaba visible
+  document.getElementById('btn-repetir-pedido')?.classList.remove('hidden');
+
+  closeModal('m-carrito');
+  closeModal('m-resumen');
+  toast(`✅ Pedido enviado a ${Object.keys(grupos).length} emprendedor${Object.keys(grupos).length>1?'es':''}`, 'wa');
+}
+
+/* ════════════════════════════════════════
+   RESUMEN & LIMPIAR
+════════════════════════════════════════ */
+function abrirResumen() {
+  const cli=val('cli-nombre'), mesa=val('cli-mesa'), total=calcTotal();
+  document.getElementById('resumen-cli').innerHTML=(cli||mesa)?`${cli?'👤 '+esc(cli):''} ${mesa?'· 🪑 '+esc(mesa):''}`.trim():'Sin datos de cliente';
+  document.getElementById('resumen-items').innerHTML=carrito.map(c=>{
+    const varLabel=c.varSel?` · ${esc(c.varSel.label)}`:'';
+    const notaLabel=c.nota?`<br><span style="font-size:11px;color:var(--gris1);">📝 ${esc(c.nota)}</span>`:'';
+    return `<div class="res-item"><span>${c.prod.emoji} ${esc(c.prod.nombre)}${varLabel}${c.qty>1?` <span style="color:var(--gris1)">×${c.qty}</span>`:''}${notaLabel}</span><span style="font-weight:600;">$${fmt(c.subtotal)}</span></div>`;
+  }).join('');
+  document.getElementById('resumen-total').textContent='$'+fmt(total);
+  openModal('m-resumen');
+}
+function confirmarLimpiar() { if(!carrito.length) return toast('⚠️ Ya está vacío','rojo'); openModal('m-confirm'); }
+function limpiarPedido() { carrito=[]; renderTotalBar(); actualizarBadgeCarrito(); closeModal('m-confirm'); toast('🧹 Pedido limpiado','oro'); }
+
+/* ════════════════════════════════════════
+   IMPRIMIR
+════════════════════════════════════════ */
+function imprimirPedido() {
+  const cli=val('cli-nombre'), mesa=val('cli-mesa'), fecha=new Date().toLocaleString('es-AR'), total=calcTotal();
+  const rows=carrito.map(c=>`<tr><td>${esc(c.prod.nombre)}${c.varSel?'<br><small>'+esc(c.varSel.label)+'</small>':''}${c.nota?'<br><small>📝 '+esc(c.nota)+'</small>':''}</td><td>${c.qty}</td><td>$${fmt(c.precioUnit)}</td><td>$${fmt(c.subtotal)}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>Pedido PEDIDEX</title><style>body{font-family:Arial;max-width:400px;margin:auto;padding:20px;}h2{text-align:center;}table{width:100%;border-collapse:collapse;}td,th{border:1px solid #ccc;padding:7px;}div.t{font-weight:bold;font-size:16px;text-align:right;margin-top:12px;}</style></head><body><h2>🛒 PEDIDEX PRO</h2><p><b>Fecha:</b> ${fecha}</p>${cli?`<p><b>Cliente:</b> ${esc(cli)}</p>`:''}${mesa?`<p><b>Mesa:</b> ${esc(mesa)}</p>`:''}<table><tr><th>Producto</th><th>Cant.</th><th>Unit.</th><th>Subtotal</th></tr>${rows}</table><div class="t">TOTAL: $${fmt(total)}</div></body></html>`);
+  w.document.close(); w.print();
+}
+
+/* ════════════════════════════════════════
+   PHOTO VIEWER
+════════════════════════════════════════ */
+function abrirFoto(src) { document.getElementById('photo-viewer-img').src=src; document.getElementById('photo-viewer').classList.add('open'); }
+function closePhotoViewer() { document.getElementById('photo-viewer').classList.remove('open'); document.getElementById('photo-viewer-img').src=''; }
+
+/* ════════════════════════════════════════
+   MODALES
+════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function closeOv(e,id) { if(e.target===document.getElementById(id)) closeModal(id); }
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+let toastT;
+function toast(msg,tipo='oro') { const el=document.getElementById('toast'); el.textContent=msg; el.className=`show ${tipo}`; clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2800); }
+
+/* ════════════════════════════════════════
+   UTILIDADES
+════════════════════════════════════════ */
+function val(id)    { return (document.getElementById(id)?.value||'').trim(); }
+function fmt(n)     { return Number(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function sanitize(s){ return (s||'').replace(/[<>]/g,'').trim(); }
+function esc(s)     { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function isEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function initials(s){ return (s||'?').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase()||'?'; }
+function showErr(el,msg){ el.textContent=msg; el.classList.remove('hidden'); }
+/* ─ GUARDAR — las fotos NO se persisten (son muy pesadas) ─ */
+async function guardarEmp() {
+  const sinFotos = emprendedores.map(e => ({
+    ...e,
+    productos: e.productos.map(p => ({ ...p, fotos: [] }))
+  }));
+  await CloudStorage.set(LS.EMP, sinFotos);
+}
+
+async function guardarHist() {
+  await CloudStorage.set(LS.HIST, historial);
+}
+
+/* ════════════════════════════════════════
+   REPETIR ÚLTIMO PEDIDO
+════════════════════════════════════════ */
+function repetirUltimoPedido() {
+  const raw = Storage.get(LS.LAST_ORDER, '');
+  if (!raw) return toast('No hay pedidos anteriores','rojo');
+  try {
+    const items = JSON.parse(raw);
+    carrito = [];
+    let restaurados = 0;
+    items.forEach(item => {
+      const emp  = emprendedores[item.empIdx];
+      if (!emp || !emp.activo) return;
+      const prod = emp.productos.find(p => p.id === item.prodId);
+      if (!prod) return;
+      const precioUnit = prod.precio + (item.varSel?.extraPrecio || 0);
+      carrito.push({
+        empIdx:    item.empIdx,
+        prod:      { ...prod, fotos: [] }, // sin fotos en carrito
+        qty:       item.qty,
+        varSel:    item.varSel || null,
+        nota:      item.nota   || '',
+        subtotal:  precioUnit  * item.qty,
+        precioUnit,
+      });
+      restaurados++;
+    });
+    if (!restaurados) return toast('⚠️ Los productos ya no están disponibles','rojo');
+    renderTotalBar();
+    actualizarBadgeCarrito();
+    toast(`🔁 Pedido anterior restaurado (${restaurados} ítem${restaurados !== 1 ? 's' : ''})`, 'oro');
+    // Abrir carrito para que el cliente lo vea
+    setTimeout(() => abrirCarrito(), 400);
+  } catch(e) {
+    /* error silenciado */
+    toast('No se pudo restaurar el pedido','rojo');
+  }
+}
+
+/* ════════════════════════════════════════
+   UPGRADE PRO — contacto WhatsApp
+════════════════════════════════════════ */
+function contactarUpgrade() {
+  const emp = sesion ? emprendedores[sesion.idx] : null;
+  const negocio = emp ? emp.negocio : 'mi emprendimiento';
+  const msg = `Hola, me interesa activar el plan PRO de PEDIDEX PRO para *${negocio}*. ¿Cómo lo activo?`;
+  window.open(`https://wa.me/549${config.wa}?text=${encodeURIComponent(msg)}`, '_blank');
+  closeModal('m-upgrade');
+}
+
+/* Activar/desactivar plan PRO desde Admin */
+async function togglePlanEmp(i) {
+  const emp = emprendedores[i];
+  emp.plan = emp.plan === 'pro' ? 'free' : 'pro';
+  await guardarEmp();
+  renderAdmin();
+  toast(`${emp.negocio}: plan → ${emp.plan.toUpperCase()}`, 'oro');
+}
+
+// Las fotos son efímeras — solo en sesión. No se persisten.
+function cargarFotosDeStorage() {
+  // Limpiar cualquier foto vieja que haya quedado guardada en versiones anteriores
+  const keysToDelete = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('pdx_f_')) keysToDelete.push(k);
+  }
+  keysToDelete.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+  // Inicializar fotos como array vacío en todos los productos
+  emprendedores.forEach(e => {
+    e.productos.forEach(p => { p.fotos = []; });
+  });
+}
+
+function clearAuthForms() {
+  ['l-email','l-pass','r-email','r-pass','r-pass2','r-negocio','r-wa'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['l-err','r-err'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  switchAuth('login');
+}
+
+/* ════════════════════════════════════════
+   DEMO DATA (primer arranque)
+════════════════════════════════════════ */
+function limpiarStorageViejo() {
+  // Eliminar TODAS las claves de versiones anteriores
+  const prefijosViejos = ['pdx_emprendedores','pdx_historial','pdx_config',
+    'pdx_emp','pdx_hist','pdx_cfg','pdx_emp2','pdx_hist2','pdx_cfg2'];
+  prefijosViejos.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+  // Eliminar fotos viejas guardadas (pdx_f_*)
+  const fotosViejas = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('pdx_f_')) fotosViejas.push(k);
+  }
+  fotosViejas.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+}
+
+function seedDemo() {
+  if (emprendedores.length > 0) return; // No pisar datos reales
+  emprendedores=[
+    {
+      email:'demo@pedidex.com', pass:'demo123',
+      negocio:'Las Brasas TDF', desc:'Hamburguesas artesanales · Sandwiches · Papas',
+      wa:'2964524899', cat:'Comida', direccion:'Centro, Río Grande',
+      plan:'pro', activo:true, abierto:true, creado:Date.now(),
+      productos:[
+        { id:1, nombre:'Hamburguesa Doble', precio:2500, desc:'2 medallones de 150g, cheddar, lechuga, tomate, cebolla caramelizada',
+          emoji:'🍔', cat:'Comida', fotos:[], variantes:[{label:'Simple (1 medallón)',extraPrecio:-500},{label:'Doble (2 medallones)',extraPrecio:0},{label:'Triple (3 medallones)',extraPrecio:600}] },
+        { id:2, nombre:'Papas Fritas', precio:900, desc:'Porción generosa · crocantes · sal o condimento a elección',
+          emoji:'🍟', cat:'Comida', fotos:[], variantes:[{label:'Pequeñas',extraPrecio:-200},{label:'Grandes',extraPrecio:0}] },
+        { id:3, nombre:'Bebida', precio:600, desc:'Fría, en lata o botella según disponibilidad',
+          emoji:'🥤', cat:'Bebida', fotos:[],
+          variantes:[
+            {label:'Coca-Cola 500ml',extraPrecio:0},{label:'Coca-Cola 750ml',extraPrecio:200},{label:'Coca-Cola 1.5L',extraPrecio:500},
+            {label:'Sprite 500ml',extraPrecio:0},{label:'Fanta 500ml',extraPrecio:0},
+            {label:'Agua 500ml',extraPrecio:-100},{label:'Agua 1.5L',extraPrecio:200}
+          ] },
+      ],
+    },
+    {
+      email:'dulces@pedidex.com', pass:'dulces123',
+      negocio:'Dulce Tentación', desc:'Postres y tortas artesanales para llevar o delivery',
+      wa:'2964111222', cat:'Postre', direccion:'Chacra 2, Río Grande',
+      plan:'free', activo:true, abierto:true, creado:Date.now(),
+      productos:[
+        { id:4, nombre:'Torta del Día',precio:1800,desc:'Porción individual · preguntá el sabor del día',emoji:'🍰',cat:'Postre',fotos:[],variantes:[] },
+        { id:5, nombre:'Alfajor Artesanal',precio:500,desc:'Relleno de dulce de leche, bañado en chocolate',emoji:'🍩',cat:'Postre',fotos:[],variantes:[{label:'Simple',extraPrecio:0},{label:'Doble',extraPrecio:200}] },
+        { id:6, nombre:'Café / Infusión',precio:700,desc:'Taza grande · varios sabores disponibles',emoji:'☕',cat:'Bebida',fotos:[],variantes:[{label:'Café con leche',extraPrecio:0},{label:'Té',extraPrecio:0},{label:'Mate cocido',extraPrecio:0},{label:'Cortado',extraPrecio:0}] },
+      ],
+    },
+  ];
+  guardarEmp();
+}
+</script>
+</body>
+</html>
